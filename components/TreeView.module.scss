@@ -1,0 +1,32 @@
+.root {
+  white-space: nowrap;
+  position: relative;
+}
+
+.item {
+  cursor: pointer;
+
+  &:focus {
+    outline: 0;
+    border: 0;
+    background: var(--theme-focused-foreground);
+  }
+}
+
+.empty {
+  opacity: 0.5;
+}
+
+.childText {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  text-align: left;
+  padding: 1rem;
+  background-color: var(--theme-focused-foreground-subdued);
+  border: 2px solid var(--theme-text);
+  border-left-width: 82px;
+
+}
+.myText{
+  margin-left: 5vw;
+}

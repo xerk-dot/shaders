@@ -1,0 +1,30 @@
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--theme-text);
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  background: var(--theme-button-foreground);
+}
+
+.text {
+  position: relative;
+  z-index: 1;
+  color: inherit;
+}
