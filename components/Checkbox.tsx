@@ -3,54 +3,41 @@
 import styles from '@components/Checkbox.module.scss';
 import * as React from 'react';
 import * as Utilities from '@common/utilities';
+import { useState, useRef, useEffect, useId } from 'react';
 
 interface CheckboxProps {
   style?: React.CSSProperties;
-  checkboxStyle?: React.CSSProperties;
-  name: string;
-  defaultChecked?: boolean;
+  name?: string;
+  checked?: boolean;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  tabIndex?: number;
+  onClick?: (event: React.MouseEvent | React.KeyboardEvent) => void;
   children?: React.ReactNode;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ style, name, defaultChecked = false, onChange, children }) => {
-  const checkboxId = `${name}-checkbox`;
-  const inputRef = React.useRef<HTMLInputElement>(null);
+const Checkbox: React.FC<CheckboxProps> = ({ 
+  style, 
+  name, 
+  checked = false, 
+  onChange,
+  onClick,
+  children 
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const checkboxId = useId();
 
-  const [isChecked, setIsChecked] = React.useState(defaultChecked);
-  const [isFocused, setIsFocused] = React.useState(false);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    switch (event.key) {
-      case 'Enter':
-        event.preventDefault();
-        inputRef.current?.click();
-        break;
-      case 'ArrowUp':
-      case 'ArrowLeft': {
-        event.preventDefault();
-        const previousFocusable = Utilities.findNextFocusable(document.activeElement, 'previous');
-        previousFocusable?.focus();
-        break;
-      }
-      case 'ArrowDown':
-      case 'ArrowRight': {
-        event.preventDefault();
-        const nextFocusable = Utilities.findNextFocusable(document.activeElement, 'next');
-        nextFocusable?.focus();
-        break;
-      }
-      default:
-        break;
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (onClick) {
+      onClick(event);
     }
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newCheckedStatus = event.target.checked;
-    setIsChecked(newCheckedStatus);
-    if (onChange) {
-      onChange(event);
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (onClick) {
+        onClick(event as any);
+      }
     }
   };
 
@@ -60,20 +47,33 @@ const Checkbox: React.FC<CheckboxProps> = ({ style, name, defaultChecked = false
   return (
     <div
       className={Utilities.classNames(styles.section, {
-        [styles.checked]: isChecked,
+        [styles.checked]: checked,
         [styles.focused]: isFocused,
       })}
       style={style}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
     >
       <div className={styles.relative}>
-        <input className={styles.input} id={checkboxId} type="checkbox" name={name} defaultChecked={defaultChecked} onChange={handleChange} onKeyDown={handleKeyDown} onFocus={handleFocus} onBlur={handleBlur} tabIndex={0} ref={inputRef} />
+        <input 
+          className={styles.input} 
+          id={checkboxId} 
+          type="checkbox" 
+          name={name} 
+          checked={checked}
+          onChange={(e) => onChange?.(e)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
         <label className={styles.figure} htmlFor={checkboxId}>
-          {isChecked ? '╳' : '\u00A0'}
+          {checked ? '╳' : '\u00A0'}
         </label>
       </div>
       <div className={styles.right}>&nbsp;&nbsp;{children}</div>
     </div>
   );
-};
+}
 
 export default Checkbox;

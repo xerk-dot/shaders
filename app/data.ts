@@ -9,7 +9,8 @@ export const shaderData = [
     icon: '⭠',
     description: 'Animated seascape shader',
     sourceUrl: 'https://www.shadertoy.com/view/XslGRr',
-    code: seascapeFragment
+    code: seascapeFragment,
+    category: 'animation'
   },
   {
     id: 'dirty-notch',
@@ -17,7 +18,8 @@ export const shaderData = [
     icon: '⭣',
     description: 'wireframe terrain viz w/ dynamic lighting + camera movement',
     sourceUrl: '',
-    code: dirtyNotchFragment
+    code: dirtyNotchFragment,
+    category: 'geometry'
   },
   {
     id: 'compound-eye',
@@ -25,6 +27,7 @@ export const shaderData = [
     icon: '⭠',
     description: 'is watching u',
     sourceUrl: '',
-    code: compoundEyeFragment
+    code: compoundEyeFragment,
+    category: 'color'
   }
 ]; 

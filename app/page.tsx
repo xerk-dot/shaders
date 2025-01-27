@@ -61,7 +61,7 @@ import UpdatingDataTable from '@components/examples/UpdatingDataTable';
 import Footer from '@components/Footer';
 import Hero from '@components/Hero';
 import Navigation from '@components/Navigation_updated';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { ModalProvider } from '@components/page/ModalContext';
 import ResponsiveTextDisplay from '@components/ResponsiveTextDisplay';
 import SubtitleHeader from '@components/SubtitleHeader';
@@ -105,6 +105,45 @@ const carouselImages = [
 
 export default function Page(props) {
   const isDesktop = useMediaQuery('(min-width: 781px)');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['none']);
+  
+  const categories = [
+    { id: 'none', name: 'None' },
+    { id: 'all', name: 'All' },
+    { id: 'noise', name: 'Noise & Patterns' },
+    { id: 'geometry', name: 'Geometry & Shapes' },
+    { id: 'color', name: 'Color & Gradients' },
+    { id: 'animation', name: 'Animation & Motion' },
+  ];
+
+  const handleCategoryChange = (categoryId: string) => {
+    console.log('Category toggled:', categoryId);
+    
+    setSelectedCategories(prev => {
+      // Handle "None" selection
+      if (categoryId === 'none') {
+        return ['none'];
+      }
+      
+      // If any other category is selected, unselect "None"
+      if (categoryId === 'all') {
+        return ['all'];
+      }
+      
+      if (prev.includes(categoryId)) {
+        const newCategories = prev.filter(id => id !== categoryId);
+        return newCategories.length === 0 ? ['none'] : newCategories;
+      }
+      
+      const newCategories = prev.filter(id => id !== 'all' && id !== 'none');
+      return [...newCategories, categoryId];
+    });
+  };
+
+  const filteredShaders = shaderData.filter(shader => 
+    selectedCategories.includes('all') || 
+    (selectedCategories.includes('none') ? [] : selectedCategories.includes(shader.category))
+  );
   
   return (
     <>
@@ -121,28 +160,46 @@ export default function Page(props) {
           </Suspense>
         </div>
       )}
-
+      <Grid>
       <Hero word="look at my cool" />
       <SuperimposedHero />
 
-       
-      <div className={styles.grid} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-        {shaderData.map((shader, index) => (
-          <div key={shader.id} style={{ flex: 1, maxWidth: '48%', margin: '10px' }}>
-            <Link href={`/${shader.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <Card title={shader.name}>
-                <div className="shaderContainer">
-                  <ShaderCanvas 
-                    shaderId={shader.id}
-                    width={600}
-                    height={400}
-                  />
-                </div>
-              </Card>
-            </Link>
+       <Card title="search" mode="left" maxWidth="85vw" centered>
+        <div className="relative z-10 flex flex-col gap-10 my-20 max-w-[1200px] px-5 md:px-10 w-full mx-auto">
+          {/* Category Filter */}
+          {categories.map(category => (
+            <div key={category.id}>
+              <Checkbox
+                name={category.id}
+                checked={selectedCategories.includes(category.id)}
+                onChange={() => handleCategoryChange(category.id)}
+              >
+                {category.name}
+              </Checkbox>
+            </div>
+          ))}
+          
+
+          {/* Shaders Grid */}
+          <div className="flex flex-col gap-10">
+            {filteredShaders.map((shader) => (
+              <div key={shader.id}>
+                <Link href={`/${shader.id}`} style={{ background: 'none' }} className="!no-underline !text-inherit hover:!bg-none">
+                      <div className="shaderContainer">
+                        <ShaderCanvas 
+                          shaderId={shader.id}
+                          width={600}
+                          height={400}
+                        />
+                      </div>
+                </Link>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+       </Card>
+
+      </Grid>
    
     </>
   );

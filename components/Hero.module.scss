@@ -8,7 +8,10 @@
 }
 
 .title {
-  font-size: 3rem; // Adjust font size as needed
+  font-size: 3rem; // Base font size
+  @media (max-width: 768px) {
+    font-size: 2rem; // Smaller font size for smaller viewports
+  }
   font-weight: bold;
   font-family: 'Geist-Mono-Regular', monospace; // Use your preferred font
 } 

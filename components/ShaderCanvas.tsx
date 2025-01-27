@@ -8,6 +8,7 @@ interface ShaderCanvasProps {
   shaderId: string;
   width: number;
   height: number;
+  fadeBottom?: boolean;
 }
 
 const shaders = {
@@ -25,19 +26,15 @@ const shaders = {
   }
 };
 
-export default function ShaderCanvas({ shaderId, width, height }: ShaderCanvasProps) {
+export default function ShaderCanvas({ shaderId, width, height, fadeBottom = false }: ShaderCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
-    console.log('ShaderCanvas mounted, shaderId:', shaderId);
+    if (!canvasRef.current) return;
+    
     const canvas = canvasRef.current;
-    if (!canvas) {
-      console.error('No canvas element found');
-      return;
-    }
-
     const gl = canvas.getContext('webgl2');
     if (!gl) {
       console.error('WebGL2 not supported');
@@ -114,16 +111,16 @@ export default function ShaderCanvas({ shaderId, width, height }: ShaderCanvasPr
 
     // Animation frame
     function render() {
+      if (!canvasRef.current || !gl) return;
       const canvas = canvasRef.current;
-      if (!gl || !canvas) return;  // Add early return if either gl or canvas is null
       
       const time = (Date.now() - startTimeRef.current) / 1000;
       
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform1f(timeLocation, time);
-      gl.uniform4f(mouseLocation, 0, 0, 0, 0); // Update with actual mouse position if needed
-      gl.uniform1f(checkerboardLocation, 0.0); // or true to enable checkerboard
+      gl.uniform4f(mouseLocation, 0, 0, 0, 0);
+      gl.uniform1f(checkerboardLocation, 0.0);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       frameRef.current = requestAnimationFrame(render);
@@ -142,17 +139,30 @@ export default function ShaderCanvas({ shaderId, width, height }: ShaderCanvasPr
   }, [shaderId]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={width}
-      height={height}
-      style={{ 
-        width: '100%', 
-        height: 'auto',
-        background: '#000',
-        border: '1px solid #333'
-      }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: 'auto' }}>
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        style={{ 
+          width: '100%', 
+          height: 'auto',
+          background: '#000',
+          border: '1px solid #333'
+        }}
+      />
+      {fadeBottom && (
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: '30%',
+          background: 'linear-gradient(to bottom, transparent, var(--theme-background))',
+          pointerEvents: 'none'
+        }} />
+      )}
+    </div>
   );
 }
 
