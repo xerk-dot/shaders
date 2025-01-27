@@ -1,7 +1,7 @@
 import { vertexShader } from './shaders/dirty-notch';
 import { fragmentShader as dirtyNotchFragment } from './shaders/dirty-notch';
 import { fragmentShader as seascapeFragment } from './shaders/seascape';
-
+import { fragmentShader as compoundEyeFragment } from './shaders/compound-eye';
 export const shaderData = [
   {
     id: 'seascape',
@@ -20,11 +20,11 @@ export const shaderData = [
     code: dirtyNotchFragment
   },
   {
-    id: 'seascape',
-    name: 'Seascape',
+    id: 'compound-eye',
+    name: 'my 3000 compound eye is watching you',
     icon: '⭠',
-    description: 'Animated seascape shader',
+    description: 'omg why',
     sourceUrl: '',
-    code: seascapeFragment
+    code: compoundEyeFragment
   }
 ]; 

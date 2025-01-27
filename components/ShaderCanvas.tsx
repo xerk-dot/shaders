@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { vertexShader as seascapeVertex, fragmentShader as seascapeFragment } from '../app/shaders/seascape';
 import { vertexShader as dirtyNotchVertex, fragmentShader as dirtyNotchFragment } from '../app/shaders/dirty-notch';
-
+import { vertexShader as compoundEyeVertex, fragmentShader as compoundEyeFragment } from '../app/shaders/compound-eye';
 interface ShaderCanvasProps {
   shaderId: string;
   width: number;
@@ -18,6 +18,10 @@ const shaders = {
   'dirty-notch': {
     vertex: dirtyNotchVertex,
     fragment: dirtyNotchFragment
+  },
+  'compound-eye': {
+    vertex: compoundEyeVertex,
+    fragment: compoundEyeFragment
   }
 };
 
