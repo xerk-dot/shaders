@@ -30,6 +30,7 @@ const Navigation: React.FC<NavigationProps> = ({ children, logoHref, logoTarget,
       default:
         return (
           <>
+            {pathname !== '/' && <ActionButton onClick={() => window.location.href = '/'}>BACK</ActionButton>}
             <DropdownMenuTrigger
               items={(shaderData || []).map(shader => ({
                 icon: shader.icon,

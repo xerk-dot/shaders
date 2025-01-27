@@ -23,7 +23,7 @@ const shaders = {
 
 export default function ShaderCanvas({ shaderId, width, height }: ShaderCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const frameRef = useRef<number>();
+  const frameRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
@@ -85,6 +85,9 @@ export default function ShaderCanvas({ shaderId, width, height }: ShaderCanvasPr
 
     // Animation frame
     function render() {
+      const canvas = canvasRef.current;
+      if (!gl || !canvas) return;  // Add early return if either gl or canvas is null
+      
       const time = (Date.now() - startTimeRef.current) / 1000;
       
       gl.viewport(0, 0, canvas.width, canvas.height);

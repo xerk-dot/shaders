@@ -71,6 +71,8 @@ import styles from './page.module.css';
 import { SuperimposedHero } from '@components/superimposed-hero/superimposed-hero';
 import CodeBlock from '@components/CodeBlock';
 import SidebarLayout from '@components/SidebarLayout';
+import { shaderData } from './data';
+import ShaderCanvas from '@components/ShaderCanvas';
 
 const Carousel = lazy(() =>
   import('@components/carousel/carousel').then(module => ({ default: module.Carousel }))
@@ -123,6 +125,19 @@ export default function Page(props) {
       <SuperimposedHero />
 
        
+      <div className={styles.grid}>
+        {shaderData.map((shader) => (
+          <Card key={shader.id} title={shader.name} >
+            <div className="shaderContainer">
+              <ShaderCanvas 
+                shaderId={shader.id}
+                width={800}
+                height={600}
+              />
+            </div>
+          </Card>
+        ))}
+      </div>
    
     </>
   );

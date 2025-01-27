@@ -32,14 +32,7 @@ export default function ShaderView({ shader }: ShaderViewProps) {
           height={600}
         />
       </div>
-      <a 
-        href={shader.sourceUrl} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="sourceLink"
-      >
-        View Source
-      </a>
+
     </div>
   );
 } 
