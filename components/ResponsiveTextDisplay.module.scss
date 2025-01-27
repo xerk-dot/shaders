@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 4rem;
+}
+
+.container > div {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    gap: 4rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .container > div:first-child {
+    flex-basis: 100%;
+  }
+
+  .container > div:not(:first-child) {
+    flex-basis: calc(50% - 1rem);
+  }
+}
