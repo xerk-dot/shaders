@@ -148,7 +148,7 @@ export default function Page(props) {
   
   return (
     <>
-      {(
+{/*       {(
         <div className={styles.mobileCarouselWrapper}>
           <Suspense fallback={null}>
             <Carousel
@@ -160,9 +160,28 @@ export default function Page(props) {
             />
           </Suspense>
         </div>
-      )}
+      )} */}
+
+{(
+  <div className="shaderContainer" style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '80vh',
+    zIndex: -1,
+    opacity: 0.5
+  }}>
+    <ShaderCanvas 
+      shaderId="compound-eye"
+      width={1920}
+      height={900}
+      fadeBottom={true}
+    />
+  </div>
+)}
       <Grid>
-      <Hero word="look at my cool" />
+      <Hero word="(look at my)" />
       <SuperimposedHero />
 
        <Card title="search" mode="left" maxWidth="85vw" centered>

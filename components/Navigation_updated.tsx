@@ -38,7 +38,7 @@ const Navigation: React.FC<NavigationProps> = ({ children, logoHref, logoTarget,
                 href: `/${shader.id}`,
               }))}
             >
-              <ActionButton>SELECT SHADER</ActionButton>
+              <ActionButton>QUICK SELECT</ActionButton>
             </DropdownMenuTrigger>
           </>
         );

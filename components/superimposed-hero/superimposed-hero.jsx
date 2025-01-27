@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import Badge from '@components/Badge';
 import styles from './superimposed-hero.module.css';
 
 export const SuperimposedHero = () => {
