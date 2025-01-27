@@ -3,12 +3,11 @@ import '@root/global.scss';
 
 import { shaderData } from '../data';
 import { notFound, useParams } from 'next/navigation';
-import ShaderView from './ShaderView';
 import Card from '@components/Card';
 import CodeBlock from '@components/CodeBlock';
 import { lazy, Suspense, useEffect } from 'react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import ShaderCanvas from '@components/ShaderCanvas';
+import ShaderCanvas from '../../components/ShaderCanvas';
 import Carousel from '@components/Carousel';
 import Badge from '@components/Badge';
 

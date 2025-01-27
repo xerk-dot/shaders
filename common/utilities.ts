@@ -45,17 +45,17 @@ export function getDomainFromEmailWithoutAnySubdomain(email: string): string {
 
 export function onHandleThemeChange() {
   const body = document.body;
-  let newTheme = 'theme-blue';
+  let newTheme = 'theme-dark';
 
   if (body.classList.contains('theme-light')) {
-    newTheme = 'blue';
-    body.classList.replace('theme-light', 'theme-blue');
+    newTheme = 'dark';
+    body.classList.replace('theme-light', 'theme-dark');
   } else if (body.classList.contains('theme-dark')) {
-    newTheme = 'theme-light';
-    body.classList.replace('theme-dark', 'theme-light');
+    newTheme = 'theme-blue';
+    body.classList.replace('theme-dark', 'theme-blue');
   } else if (body.classList.contains('theme-blue')) {
-    newTheme = 'theme-dark';
-    body.classList.replace('theme-blue', 'theme-dark');
+    newTheme = 'theme-light';
+    body.classList.replace('theme-blue', 'theme-light');
   }
 
   // Save the theme preference

@@ -18,5 +18,13 @@ export const shaderData = [
     description: 'wireframe terrain viz w/ dynamic lighting + camera movement',
     sourceUrl: '',
     code: dirtyNotchFragment
+  },
+  {
+    id: 'seascape',
+    name: 'Seascape',
+    icon: '⭠',
+    description: 'Animated seascape shader',
+    sourceUrl: '',
+    code: seascapeFragment
   }
 ]; 

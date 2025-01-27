@@ -61,10 +61,8 @@ export const fragmentShader = `#version 300 es
     // Create checkerboard pattern based on position
     float checker = mod(floor(p.x) + floor(p.y) + floor(p.z), 2.0);
     
-    // Toggle every 10 seconds using iTime
-    //if (mod(floor(iTime / 10.0), 2.0) == 0.0) {
-    if (false){
-    // Only allow blocks to appear on checker pattern when enabled
+    if (iCheckerboard) {
+      // Only allow blocks to appear on checker pattern when enabled
       return step(f, 0.5) * checker;
     } else {
       // Regular pattern without checkerboard

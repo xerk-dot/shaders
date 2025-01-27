@@ -77,6 +77,8 @@ export default function ShaderCanvas({ shaderId, width, height }: ShaderCanvasPr
     const resolutionLocation = gl.getUniformLocation(program, 'iResolution');
     const timeLocation = gl.getUniformLocation(program, 'iTime');
     const mouseLocation = gl.getUniformLocation(program, 'iMouse');
+    const checkerboardLocation = gl.getUniformLocation(program, 'iCheckerboard');
+    gl.uniform1f(checkerboardLocation, 0.0); // Use 0.0 instead of false
 
     // Create and set up noise texture
     const noiseTexture = createNoiseTexture(gl);
@@ -117,6 +119,7 @@ export default function ShaderCanvas({ shaderId, width, height }: ShaderCanvasPr
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform1f(timeLocation, time);
       gl.uniform4f(mouseLocation, 0, 0, 0, 0); // Update with actual mouse position if needed
+      gl.uniform1f(checkerboardLocation, 0.0); // or true to enable checkerboard
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       frameRef.current = requestAnimationFrame(render);
