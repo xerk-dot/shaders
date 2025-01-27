@@ -593,7 +593,7 @@ const SAMPLE_TABLE_DATA_CHANGE_ME = [
                   { icon: '⊹', children: 'Visit Search System', href: 'https://searchsystem.co/', target: '_blank' },
                 ]}
               >
-                <ActionButton>TOP RIGHT</ActionButton>
+                <ActionButton>SELECT SHADER</ActionButton>
               </DropdownMenuTrigger>
             </RowSpaceBetween>
             <br />

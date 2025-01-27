@@ -8,6 +8,8 @@ import ModalTrigger from '@components/ModalTrigger';
 import ActionButton from '@components/ActionButton';
 import ModalCreateAccount from '@components/modals/ModalCreateAccount';
 import Link from 'next/link';
+import DropdownMenuTrigger from '@components/DropdownMenuTrigger';
+import { shaderData } from 'app/data';
 
 interface NavigationProps extends React.HTMLAttributes<HTMLElement> {
   children?: React.ReactNode;
@@ -25,45 +27,20 @@ const Navigation: React.FC<NavigationProps> = ({ children, logoHref, logoTarget,
 
   const renderModals = () => {
     switch (pathname) {
-      case '/':
-        return (
-          <>
-            <ModalTrigger modal={ModalCreateAccount}>
-              <ActionButton>STUDIO</ActionButton>
-            </ModalTrigger>
-            <ModalTrigger modal={ModalCreateAccount}>
-              <ActionButton>MAP</ActionButton>
-            </ModalTrigger>
-            <ModalTrigger modal={ModalCreateAccount}>
-              <ActionButton>ACCOUNT</ActionButton>
-            </ModalTrigger>
-          </>
-        );
-      case '/faqs':
-      case '/privacy':
-      case '/terms':
-      case '/about':
-      case '/contact':
-      case '/support':
-        return (
-          <>
-            <Link href="/">
-              <ActionButton>GO BACK</ActionButton>
-            </Link>
-            <ModalTrigger modal={ModalCreateAccount}>
-              <ActionButton>STUDIO</ActionButton>
-            </ModalTrigger>
-            <ModalTrigger modal={ModalCreateAccount}>
-              <ActionButton>MAP</ActionButton>
-            </ModalTrigger>
-            <ModalTrigger modal={ModalCreateAccount}>
-              <ActionButton>ACCOUNT</ActionButton>
-            </ModalTrigger>
-          </>
-        );
-      // Add more cases for different routes as needed
       default:
-        return null;
+        return (
+          <>
+            <DropdownMenuTrigger
+              items={(shaderData || []).map(shader => ({
+                icon: shader.icon,
+                children: shader.name,
+                href: `/${shader.id}`,
+              }))}
+            >
+              <ActionButton>SELECT SHADER</ActionButton>
+            </DropdownMenuTrigger>
+          </>
+        );
     }
   };
 

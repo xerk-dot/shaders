@@ -7,7 +7,7 @@
   "license": "MIT",
   "version": "0.0.24",
   "scripts": {
-    "dev": "next -p 10000",
+    "dev": "next -p 2003",
     "build": "next build",
     "start": "PORT=10000 next start",
     "lint": "next lint"

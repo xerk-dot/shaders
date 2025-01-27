@@ -8,7 +8,7 @@ export const SuperimposedHero = () => {
     <div className={styles.hero}>
       <div className={styles.textContainer}>
         <h1 ref={textRef} className={styles.text}>
-          WEBXR STUDIO
+          SHADERS
         </h1>
       </div>
     </div>

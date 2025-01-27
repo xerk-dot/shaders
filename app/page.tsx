@@ -69,7 +69,8 @@ import { data } from 'app/_info/info';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import styles from './page.module.css';
 import { SuperimposedHero } from '@components/superimposed-hero/superimposed-hero';
-
+import CodeBlock from '@components/CodeBlock';
+import SidebarLayout from '@components/SidebarLayout';
 
 const Carousel = lazy(() =>
   import('@components/carousel/carousel').then(module => ({ default: module.Carousel }))
@@ -108,7 +109,7 @@ export default function Page(props) {
         <div className={styles.mobileCarouselWrapper}>
           <Suspense fallback={null}>
             <Carousel
-              placeholder="/bridge-gradient.png"
+              placeholder="https://placehold.co/transparent/transparent/F00"
               images={carouselImages}
               width={1920}
               height={900}
@@ -118,33 +119,11 @@ export default function Page(props) {
         </div>
       )}
 
-      <Hero word="STARSOF AR" />
+      <Hero word="look at my cool" />
       <SuperimposedHero />
 
-       {isDesktop && (
-        <Card title="augment intimacy" mode="left" maxWidth="80vw" centered>
-          <Suspense fallback={null}>
-            <Carousel
-              placeholder="/bridge-gradient.png"
-              images={carouselImages}
-              width={1920}
-              height={900}
-              fadeBottom={false}
-            />
-          </Suspense>
-        </Card>
-      )}
-
-      <ResponsiveTextDisplay data={data} />
-
-      <ModalStack />
-      <Grid>
-        <Row>
-          <Card title="footer" mode="right" glow>
-            <Footer companyName="Starsof AR" packageVersion={Package.version} />
-          </Card>
-        </Row>
-      </Grid>
+       
+   
     </>
   );
 }

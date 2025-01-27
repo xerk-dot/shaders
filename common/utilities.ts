@@ -43,25 +43,35 @@ export function getDomainFromEmailWithoutAnySubdomain(email: string): string {
   return mainDomain;
 }
 
-// TODO(jimmylee)
-// Obviously delete this once we implement a theme picker modal.
 export function onHandleThemeChange() {
   const body = document.body;
+  let newTheme = 'theme-blue';
 
   if (body.classList.contains('theme-light')) {
+    newTheme = 'blue';
     body.classList.replace('theme-light', 'theme-blue');
-    return;
-  }
-
-  if (body.classList.contains('theme-dark')) {
+  } else if (body.classList.contains('theme-dark')) {
+    newTheme = 'theme-light';
     body.classList.replace('theme-dark', 'theme-light');
-    return;
+  } else if (body.classList.contains('theme-blue')) {
+    newTheme = 'theme-dark';
+    body.classList.replace('theme-blue', 'theme-dark');
   }
 
-  if (body.classList.contains('theme-blue')) {
-    body.classList.replace('theme-blue', 'theme-dark');
-    return;
-  }
+  // Save the theme preference
+  localStorage.setItem('theme', newTheme);
+}
+
+// Add this new function to initialize theme
+export function initializeTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'theme-light';
+  const body = document.body;
+  
+  // Remove any existing theme classes
+  body.classList.remove('theme-light', 'theme-dark', 'theme-blue');
+  
+  // Add the saved theme
+  body.classList.add(savedTheme);
 }
 
 export function formatDollars(value: number): string {
