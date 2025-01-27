@@ -73,6 +73,7 @@ import CodeBlock from '@components/CodeBlock';
 import SidebarLayout from '@components/SidebarLayout';
 import { shaderData } from './data';
 import ShaderCanvas from '@components/ShaderCanvas';
+import Link from 'next/link';
 
 const Carousel = lazy(() =>
   import('@components/carousel/carousel').then(module => ({ default: module.Carousel }))
@@ -127,15 +128,17 @@ export default function Page(props) {
        
       <div className={styles.grid}>
         {shaderData.map((shader) => (
-          <Card key={shader.id} title={shader.name} >
-            <div className="shaderContainer">
-              <ShaderCanvas 
-                shaderId={shader.id}
-                width={800}
-                height={600}
-              />
-            </div>
-          </Card>
+          <Link key={shader.id} href={`/${shader.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Card title={shader.name}>
+              <div className="shaderContainer">
+                <ShaderCanvas 
+                  shaderId={shader.id}
+                  width={600}
+                  height={200}
+                />
+              </div>
+            </Card>
+          </Link>
         ))}
       </div>
    
