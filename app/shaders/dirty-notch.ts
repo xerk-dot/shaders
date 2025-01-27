@@ -14,6 +14,7 @@ export const fragmentShader = `#version 300 es
   uniform float iTime;       // Time in seconds since start
   uniform vec4 iMouse;       // Mouse position (x, y, click-x, click-y)
   uniform sampler2D iChannel0;  // Input texture for noise
+  uniform bool iCheckerboard;  // Control checkerboard pattern
   out vec4 fragColor;       // Output color
 
   // 3D noise function
@@ -53,10 +54,20 @@ export const fragmentShader = `#version 300 es
     vec3 p = c + 0.5;
     
     float f = mapTerrain( p ) + 0.25*p.y;
-
+    
     f = mix( f, 1.0, step( length(gro-p), 5.0 ) );
 
-    return step( f, 0.5 );
+    // Create checkerboard pattern based on position
+    float checker = mod(floor(p.x) + floor(p.y) + floor(p.z), 2.0);
+    
+    // Toggle every 10 seconds using iTime
+    if (mod(floor(iTime / 10.0), 2.0) == 0.0) {
+      // Only allow blocks to appear on checker pattern when enabled
+      return step(f, 0.5) * checker;
+    } else {
+      // Regular pattern without checkerboard
+      return step(f, 0.5);
+    }
   }
 
   const vec3 lig = normalize( vec3(-0.4,0.3,0.7) );
