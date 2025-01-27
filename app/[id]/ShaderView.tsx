@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import ShaderCanvas from '@components/ShaderCanvas';
 
 interface ShaderViewProps {
   shader: {
@@ -25,7 +26,11 @@ export default function ShaderView({ shader }: ShaderViewProps) {
         </p>
       </div>
       <div className="shaderContainer">
-        {/* Shader rendering will go here */}
+        <ShaderCanvas 
+          shaderId={shader.id}
+          width={800}  // Adjust these dimensions as needed
+          height={600}
+        />
       </div>
       <a 
         href={shader.sourceUrl} 
