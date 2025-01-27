@@ -1,9 +1,0 @@
-{
-  "app/page.tsx -> @components/carousel/carousel": {
-    "id": "app/page.tsx -> @components/carousel/carousel",
-    "files": [
-      "static/css/_app-pages-browser_components_carousel_carousel_jsx.css",
-      "static/chunks/_app-pages-browser_components_carousel_carousel_jsx.js"
-    ]
-  }
-}
