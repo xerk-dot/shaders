@@ -83,6 +83,29 @@ export default function ShaderCanvas({ shaderId, width, height }: ShaderCanvasPr
     const channel0Location = gl.getUniformLocation(program, 'iChannel0');
     gl.uniform1i(channel0Location, 0);
 
+    // Load texture
+    const textureImage = new Image();
+    textureImage.src = 'app/pack.png'; // Make sure this path is correct
+    textureImage.onload = () => {
+      // Activate texture unit 1 before binding
+      gl.activeTexture(gl.TEXTURE1);
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      
+      // Set texture parameters
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      
+      // Upload texture to GPU
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage);
+      
+      // Set up uniform
+      const textureLocation = gl.getUniformLocation(program, 'iBlockTexture');
+      gl.uniform1i(textureLocation, 1); // Use texture unit 1
+    };
+
     // Animation frame
     function render() {
       const canvas = canvasRef.current;

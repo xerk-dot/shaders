@@ -15,6 +15,7 @@ export const fragmentShader = `#version 300 es
   uniform vec4 iMouse;       // Mouse position (x, y, click-x, click-y)
   uniform sampler2D iChannel0;  // Input texture for noise
   uniform bool iCheckerboard;  // Control checkerboard pattern
+  uniform sampler2D iBlockTexture;  // Minecraft texture
   out vec4 fragColor;       // Output color
 
   // 3D noise function
@@ -61,8 +62,9 @@ export const fragmentShader = `#version 300 es
     float checker = mod(floor(p.x) + floor(p.y) + floor(p.z), 2.0);
     
     // Toggle every 10 seconds using iTime
-    if (mod(floor(iTime / 10.0), 2.0) == 0.0) {
-      // Only allow blocks to appear on checker pattern when enabled
+    //if (mod(floor(iTime / 10.0), 2.0) == 0.0) {
+    if (false){
+    // Only allow blocks to appear on checker pattern when enabled
       return step(f, 0.5) * checker;
     } else {
       // Regular pattern without checkerboard
@@ -154,101 +156,41 @@ export const fragmentShader = `#version 300 es
       vec3 pos = ro + rd*t;
       vec3 uvw = pos - vos;
       
-      vec3 v1  = vos + nor + dir.yzx;
-      vec3 v2  = vos + nor - dir.yzx;
-      vec3 v3  = vos + nor + dir.zxy;
-      vec3 v4  = vos + nor - dir.zxy;
-      vec3 v5  = vos + nor + dir.yzx + dir.zxy;
-      vec3 v6  = vos + nor - dir.yzx + dir.zxy;
-      vec3 v7  = vos + nor - dir.yzx - dir.zxy;
-      vec3 v8  = vos + nor + dir.yzx - dir.zxy;
-      vec3 v9  = vos + dir.yzx;
-      vec3 v10 = vos - dir.yzx;
-      vec3 v11 = vos + dir.zxy;
-      vec3 v12 = vos - dir.zxy;
-      vec3 v13 = vos + dir.yzx + dir.zxy; 
-      vec3 v14 = vos - dir.yzx + dir.zxy ;
-      vec3 v15 = vos - dir.yzx - dir.zxy;
-      vec3 v16 = vos + dir.yzx - dir.zxy;
-
-      vec4 vc = vec4( map(v1),  map(v2),  map(v3),  map(v4)  );
-      vec4 vd = vec4( map(v5),  map(v6),  map(v7),  map(v8)  );
-      vec4 va = vec4( map(v9),  map(v10), map(v11), map(v12) );
-      vec4 vb = vec4( map(v13), map(v14), map(v15), map(v16) );
+      // Calculate texture coordinates based on world position and normal
+      vec2 texCoord;
+      if (abs(nor.x) > 0.5) {
+        // Side face (X)
+        texCoord = vec2(uvw.z, -uvw.y);
+      } else if (abs(nor.y) > 0.5) {
+        // Top/Bottom face (Y)
+        texCoord = vec2(uvw.x, uvw.z);
+      } else {
+        // Front/Back face (Z)
+        texCoord = vec2(uvw.x, -uvw.y);
+      }
       
-      vec2 uv = vec2( dot(dir.yzx, uvw), dot(dir.zxy, uvw) );
+      texCoord = fract(texCoord * 0.0625 + 0.5);
       
-      // wireframe
-      float www = 1.0 - isEdge( uv, va, vb, vc, vd );
+      vec3 blockTexture = texture(iBlockTexture, texCoord).rgb;
+      col = blockTexture;
       
-      vec3 wir = smoothstep( 0.4, 0.5, abs(uvw-0.5) );
-      float vvv = (1.0-wir.x*wir.y)*(1.0-wir.x*wir.z)*(1.0-wir.y*wir.z);
-
-      col = vec3(0.5);
-      col += 0.8*vec3(0.1,0.3,0.4);
-      col *= 1.0 - 0.75*(1.0-vvv)*www;
-      
-      // lighting
-      float dif = clamp( dot( nor, lig ), 0.0, 1.0 );
-      float bac = clamp( dot( nor, normalize(lig*vec3(-1.0,0.0,-1.0)) ), 0.0, 1.0 );
-      float sky = 0.5 + 0.5*nor.y;
-      float amb = clamp(0.75 + pos.y/25.0,0.0,1.0);
       float occ = 1.0;
-
-      // ambient occlusion (https://iquilezles.org/articles/voxellines/)
-      vec2 st = 1.0 - uv;
-      // edges
-      vec4 wa = vec4( uv.x, st.x, uv.y, st.y ) * vc;
-      // corners
-      vec4 wb = vec4(uv.x*uv.y,
-                     st.x*uv.y,
-                     st.x*st.y,
-                     uv.x*st.y)*vd*(1.0-vc.xzyw)*(1.0-vc.zywx);
-      occ = wa.x + wa.y + wa.z + wa.w +
-            wb.x + wb.y + wb.z + wb.w;
-           
-           
-      occ = 1.0 - occ/8.0;
-      occ = occ*occ;
-      occ = occ*occ;
-      occ *= amb;
-
-      // lighting
+      
+      // Reduced lighting intensities
+      float dif = clamp(dot(nor, lig), 0.0, 1.0);
+      float bac = clamp(dot(nor, normalize(lig*vec3(-1.0,0.0,-1.0))), 0.0, 1.0);
+      float sky = 0.3 + 0.2*nor.y;  // Reduced sky light
+      float amb = clamp(0.5 + pos.y/25.0,0.0,1.0);  // Reduced ambient
+      
+      // Darker lighting
       vec3 lin = vec3(0.0);
-      lin += 2.5*dif*vec3(1.00,0.90,0.70)*(0.5+0.5*occ);
-      lin += 0.5*bac*vec3(0.15,0.10,0.10)*occ;
-      lin += 2.0*sky*vec3(0.40,0.30,0.15)*occ;
-
-      // line glow	
-      float lineglow = 0.0;
-      lineglow += smoothstep( 0.4, 1.0,     uv.x )*(1.0-va.x*(1.0-vc.x));
-      lineglow += smoothstep( 0.4, 1.0, 1.0-uv.x )*(1.0-va.y*(1.0-vc.y));
-      lineglow += smoothstep( 0.4, 1.0,     uv.y )*(1.0-va.z*(1.0-vc.z));
-      lineglow += smoothstep( 0.4, 1.0, 1.0-uv.y )*(1.0-va.w*(1.0-vc.w));
-      lineglow += smoothstep( 0.4, 1.0,      uv.y*      uv.x )*(1.0-vb.x*(1.0-vd.x));
-      lineglow += smoothstep( 0.4, 1.0,      uv.y* (1.0-uv.x))*(1.0-vb.y*(1.0-vd.y));
-      lineglow += smoothstep( 0.4, 1.0, (1.0-uv.y)*(1.0-uv.x))*(1.0-vb.z*(1.0-vd.z));
-      lineglow += smoothstep( 0.4, 1.0, (1.0-uv.y)*     uv.x )*(1.0-vb.w*(1.0-vd.w));
+      lin += 1.2*dif*vec3(1.00,0.90,0.70)*(0.5+0.5*occ);  // Reduced from 2.5 to 1.2
+      lin += 0.3*bac*vec3(0.15,0.10,0.10)*occ;  // Reduced from 0.5 to 0.3
+      lin += 1.0*sky*vec3(0.40,0.30,0.15)*occ;  // Reduced from 2.0 to 1.0
       
-      vec3 linCol = 2.0*vec3(5.0,0.6,0.0);
-      linCol *= (0.5+0.5*occ)*0.5;
-      lin += lineglow*linCol;
-      
-      col = col*lin;
-      col += 8.0*linCol*vec3(1.0,2.0,3.0)*(1.0-www);//*(0.5+1.0*sha);
-      col += 0.1*lineglow*linCol;
-      col *= min(0.1,exp( -0.07*t ));
-    
-      // blend to black & white		
-      vec3 col2 = vec3(1.3)*(0.5+0.5*nor.y)*occ*exp( -0.04*t );;
-      float mi = cos(-0.7+0.5*iTime);
-      mi = smoothstep( 0.70, 0.75, mi );
-      col = mix( col, col2, mi );
+      col *= lin;
     }
-
-    // gamma	
-    col = pow( col, vec3(0.45) );
-
+    
     return col;
   }
 
