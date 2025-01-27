@@ -140,10 +140,11 @@ export default function Page(props) {
     });
   };
 
-  const filteredShaders = shaderData.filter(shader => 
-    selectedCategories.includes('all') || 
-    (selectedCategories.includes('none') ? [] : selectedCategories.includes(shader.category))
-  );
+  const filteredShaders = selectedCategories.includes('none') 
+    ? [] 
+    : shaderData.filter(shader => 
+        selectedCategories.includes('all') || selectedCategories.includes(shader.category)
+      );
   
   return (
     <>
