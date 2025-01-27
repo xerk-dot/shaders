@@ -126,19 +126,21 @@ export default function Page(props) {
       <SuperimposedHero />
 
        
-      <div className={styles.grid}>
-        {shaderData.map((shader) => (
-          <Link key={shader.id} href={`/${shader.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Card title={shader.name}>
-              <div className="shaderContainer">
-                <ShaderCanvas 
-                  shaderId={shader.id}
-                  width={600}
-                  height={200}
-                />
-              </div>
-            </Card>
-          </Link>
+      <div className={styles.grid} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+        {shaderData.map((shader, index) => (
+          <div key={shader.id} style={{ flex: 1, maxWidth: '48%', margin: '10px' }}>
+            <Link href={`/${shader.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Card title={shader.name}>
+                <div className="shaderContainer">
+                  <ShaderCanvas 
+                    shaderId={shader.id}
+                    width={600}
+                    height={400}
+                  />
+                </div>
+              </Card>
+            </Link>
+          </div>
         ))}
       </div>
    

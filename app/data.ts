@@ -21,9 +21,9 @@ export const shaderData = [
   },
   {
     id: 'compound-eye',
-    name: 'my 3000 compound eye is watching you',
+    name: '3000 compound eye',
     icon: '⭠',
-    description: 'omg why',
+    description: 'is watching u',
     sourceUrl: '',
     code: compoundEyeFragment
   }
