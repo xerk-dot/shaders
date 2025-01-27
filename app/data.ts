@@ -15,7 +15,7 @@ export const shaderData = [
     id: 'dirty-notch',
     name: 'Dirty Notch',
     icon: '⭣',
-    description: 'A mesmerizing voxel-based wireframe terrain visualization with dynamic lighting and camera movement',
+    description: 'wireframe terrain viz w/ dynamic lighting + camera movement',
     sourceUrl: '',
     code: dirtyNotchFragment
   }
