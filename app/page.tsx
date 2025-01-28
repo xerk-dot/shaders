@@ -170,7 +170,7 @@ export default function Page(props) {
     width: '100%',
     height: '100vh',
     zIndex: -1,
-    opacity: 0.5
+    opacity: .6
   }}>
     <ShaderCanvas 
       shaderId="compound-eye"
