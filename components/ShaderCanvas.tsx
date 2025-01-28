@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { vertexShader as seascapeVertex, fragmentShader as seascapeFragment } from '../app/shaders/seascape';
 import { vertexShader as dirtyNotchVertex, fragmentShader as dirtyNotchFragment } from '../app/shaders/dirty-notch';
 import { vertexShader as compoundEyeVertex, fragmentShader as compoundEyeFragment } from '../app/shaders/compound-eye';
+
 interface ShaderCanvasProps {
   shaderId: string;
-  width: number;
-  height: number;
+  width: number | string;  // Can now be number (pixels) or string (e.g., '100vw')
+  height: number | string; // Can now be number (pixels) or string (e.g., '100vh')
   fadeBottom?: boolean;
 }
 
@@ -31,6 +32,23 @@ export default function ShaderCanvas({ shaderId, width, height, fadeBottom = fal
   const frameRef = useRef<number | undefined>(undefined);
   const startTimeRef = useRef<number>(Date.now());
 
+  // Function to get current dimensions based on viewport if needed
+  const getDimensions = useCallback(() => {
+    if (typeof width === 'number' && typeof height === 'number') {
+      return { width, height };
+    }
+    
+    const viewportWidth = typeof width === 'string' && width.endsWith('vw') 
+      ? (window.innerWidth * parseFloat(width) / 100)
+      : (typeof width === 'number' ? width : window.innerWidth);
+      
+    const viewportHeight = typeof height === 'string' && height.endsWith('vh')
+      ? (window.innerHeight * parseFloat(height) / 100)
+      : (typeof height === 'number' ? height : window.innerHeight);
+      
+    return { width: viewportWidth, height: viewportHeight };
+  }, [width, height]);
+
   useEffect(() => {
     if (!canvasRef.current) return;
     
@@ -39,6 +57,33 @@ export default function ShaderCanvas({ shaderId, width, height, fadeBottom = fal
     if (!gl) {
       console.error('WebGL2 not supported');
       return;
+    }
+
+    // Set initial dimensions
+    const dimensions = getDimensions();
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
+
+    // Add resize handler for viewport units
+    const handleResize = () => {
+      const newDimensions = getDimensions();
+      canvas.width = newDimensions.width;
+      canvas.height = newDimensions.height;
+      
+      // Update WebGL viewport
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      
+      // Update resolution uniform if it exists
+      if (program) {
+        const resolutionLocation = gl.getUniformLocation(program, 'iResolution');
+        if (resolutionLocation) {
+          gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        }
+      }
+    };
+
+    if (typeof width === 'string' || typeof height === 'string') {
+      window.addEventListener('resize', handleResize);
     }
 
     const shaderProgram = shaders[shaderId as keyof typeof shaders];
@@ -135,8 +180,11 @@ export default function ShaderCanvas({ shaderId, width, height, fadeBottom = fal
       }
       gl.deleteProgram(program);
       gl.deleteBuffer(positionBuffer);
+      if (typeof width === 'string' || typeof height === 'string') {
+        window.removeEventListener('resize', handleResize);
+      }
     };
-  }, [shaderId]);
+  }, [width, height, shaderId, fadeBottom]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: 'auto' }}>
