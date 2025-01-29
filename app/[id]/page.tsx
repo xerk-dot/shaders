@@ -59,8 +59,8 @@ export default function ShaderPage() {
       </div>
         
       <div className="grid">
-        {(
-          <Card title="augment intimacy" mode="left" maxWidth="80vw" centered>
+{/*         {(
+           <Card title="augment intimacy" mode="left" maxWidth="80vw" centered>
             <div className="shaderContainer" style={{maxWidth: '80vw', width: '100%'}}>
               <ShaderCanvas 
                 shaderId={shader.id}
@@ -69,7 +69,8 @@ export default function ShaderPage() {
               />
             </div>
           </Card>
-        )}
+        )} */}
+        <div style={{height: '40vh'}}></div>
         <Grid>
           <CodeBlock>
             {shader.code}
