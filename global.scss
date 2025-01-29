@@ -239,6 +239,10 @@ body.theme-dark {
 
 html,
 body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
   --color-black-100: rgba(0, 0, 0, 1);
   --color-black-100-1: rgba(0, 0, 0, 0.1);
   --color-black-100-2: rgba(0, 0, 0, 0.2);
@@ -361,6 +365,10 @@ body {
   &::-webkit-scrollbar-thumb:hover {
     background: var(--theme-border);
   }
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
 }
 
 
