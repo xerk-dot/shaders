@@ -5,6 +5,8 @@ import DebugGrid from '@components/DebugGrid';
 import DefaultActionBar from '@components/page/DefaultActionBar';
 import Navigation from '@components/Navigation_updated';
 import ThemeInitializer from '@components/ThemeInitializer';
+import Footer from '@components/Footer';
+import Package from '@root/package.json';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -26,6 +28,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 right={<></>}
               />
               {children}
+              <Footer 
+                companyName="Shaders"
+                packageVersion={Package.version}
+              />
             </Suspense>
           </DefaultLayout>
         </Providers>

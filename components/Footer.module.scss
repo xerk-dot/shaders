@@ -1,105 +1,81 @@
 .footer {
-  padding: 2rem 4rem;
-  @media (max-width: 880px) {
-    padding: 0rem 0rem;
-  }
-  background: color-mix(in srgb, var(--theme-background-modal) 70%, transparent);
-  color: var(--text);
+  width: 100%;
+  padding: 2rem 0;
+  border-top: 1px solid var(--theme-border);
+  margin-top: auto;
 }
 
 .container {
-  margin: 0 auto;
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .column {
-  &.main {
-    width: 40%;
-  }
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+}
 
-  &.secondary {
-    width: 15%;
-  }
+.main {
+  flex: 1;
+}
 
-  @media (max-width: 880px) { /* Medium devices */
-    &.main {
-      width: 100%;
-      flex-basis: 100%;
-    }
+.titleLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--theme-text);
+  transition: opacity 0.2s ease;
+  gap: 0.5rem;
 
-    &.secondary {
-      width: 50%;
-      flex-basis: 50%;
-    }
-
-    &:nth-child(3), &:nth-child(4) {
-      width: 50%;
-      flex-basis: 50%;
-    }
+  &:hover {
+    opacity: 0.8;
   }
 }
 
 .companyName {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-.subtitle {
-  font-size: 1.2rem;
-  margin: 2rem 0 1rem;
+.prefix {
+  font-weight: 400;
+  opacity: 0.8;
 }
 
-.columnTitle {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-
-  li {
-    margin-bottom: 0.5rem;
-  }
-
-  a {
-    color: var(--text);
-    text-decoration: none;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
+.name {
+  font-weight: 700;
 }
 
 .socialLinks {
   display: flex;
-  gap: 1.5rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  align-items: center;
 }
 
 .socialIcon {
+  color: var(--theme-text);
+  font-size: 1.25rem;
+  padding: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 0;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text);
   text-decoration: none;
-  transition: all 0.2s ease;
-  font-size: 1.2rem;
+  background: none;
 
-  &:hover {
-    background: var(--theme-focused-foreground);
-    transform: translateY(-2px);
+  svg {
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover svg {
+    opacity: 0.8;
   }
 }
