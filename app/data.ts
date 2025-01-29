@@ -2,6 +2,8 @@ import { vertexShader } from './shaders/dirty-notch';
 import { fragmentShader as dirtyNotchFragment } from './shaders/dirty-notch';
 import { fragmentShader as seascapeFragment } from './shaders/seascape';
 import { fragmentShader as compoundEyeFragment } from './shaders/compound-eye';
+import { fragmentShader as sephoraBdsmFragment } from './shaders/sephora-bdsm';
+
 export const shaderData = [
   {
     id: 'seascape',
@@ -29,5 +31,14 @@ export const shaderData = [
     sourceUrl: '',
     code: compoundEyeFragment,
     category: 'color'
+  },
+  {
+    id: 'sephora-bdsm',
+    name: 'sephora bdsm',
+    icon: '⭢',
+    description: 'ethylhexyl acetate',
+    sourceUrl: '',
+    code: sephoraBdsmFragment,
+    category: 'geometry'
   }
 ]; 

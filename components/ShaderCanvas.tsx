@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { vertexShader as seascapeVertex, fragmentShader as seascapeFragment } from '../app/shaders/seascape';
 import { vertexShader as dirtyNotchVertex, fragmentShader as dirtyNotchFragment } from '../app/shaders/dirty-notch';
 import { vertexShader as compoundEyeVertex, fragmentShader as compoundEyeFragment } from '../app/shaders/compound-eye';
+import { vertexShader as sephoraBdsmVertex, fragmentShader as sephoraBdsmFragment } from '../app/shaders/sephora-bdsm';
 
 interface ShaderCanvasProps {
   shaderId: string;
@@ -24,6 +25,10 @@ const shaders = {
   'compound-eye': {
     vertex: compoundEyeVertex,
     fragment: compoundEyeFragment
+  },
+  'sephora-bdsm': {
+    vertex: sephoraBdsmVertex,
+    fragment: sephoraBdsmFragment
   }
 };
 
