@@ -9,6 +9,9 @@ import ThemeInitializer from '@components/ThemeInitializer';
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-us">
+      <head>
+        <meta name="theme-color" content="#000000" />
+      </head>
       <body>
         <ThemeInitializer />
         <Providers>

@@ -48,7 +48,7 @@ export function onHandleThemeChange() {
   let newTheme = 'theme-dark';
 
   if (body.classList.contains('theme-light')) {
-    newTheme = 'dark';
+    newTheme = 'theme-dark';
     body.classList.replace('theme-light', 'theme-dark');
   } else if (body.classList.contains('theme-dark')) {
     newTheme = 'theme-blue';
@@ -56,6 +56,10 @@ export function onHandleThemeChange() {
   } else if (body.classList.contains('theme-blue')) {
     newTheme = 'theme-light';
     body.classList.replace('theme-blue', 'theme-light');
+  } else {
+    // If no theme class is present, set to light theme
+    body.classList.add('theme-light');
+    newTheme = 'theme-light';
   }
 
   // Save the theme preference
@@ -64,14 +68,20 @@ export function onHandleThemeChange() {
 
 // Add this new function to initialize theme
 export function initializeTheme() {
-  const savedTheme = localStorage.getItem('theme') || 'theme-light';
+  const savedTheme = localStorage.getItem('theme');
   const body = document.body;
   
   // Remove any existing theme classes
   body.classList.remove('theme-light', 'theme-dark', 'theme-blue');
   
-  // Add the saved theme
-  body.classList.add(savedTheme);
+  // If no theme is saved, set default to theme-light
+  if (!savedTheme) {
+    body.classList.add('theme-light');
+    localStorage.setItem('theme', 'theme-light');
+  } else {
+    // Add the saved theme
+    body.classList.add(savedTheme);
+  }
 }
 
 export function formatDollars(value: number): string {
