@@ -6,10 +6,19 @@
   transition: 200ms ease all;
   font-weight: 400;
   transition-property: background;
-  padding: 0 1ch 0 1ch;
+  padding: 0 0ch;
   user-select: none;
-  flex-shrink: 0;
-  text-indent: 0ch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3ch;
+  height: calc(var(--font-size) * var(--theme-line-height-base));
+  svg {
+    display: block;
+    width: 30px;
+    height: 30px;
+
+  }
 }
 
 .content {
@@ -20,16 +29,20 @@
   width: 100%;
   font-weight: 400;
   cursor: pointer;
-  padding: 0 1ch 0 1ch;
+  padding: 0 1ch;
   text-transform: uppercase;
   transition: 200ms ease all;
   transition-property: background;
   user-select: none;
+  height: calc(var(--font-size) * var(--theme-line-height-base));
+  display: flex;
+  align-items: center;
+
 }
 
 .root {
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   cursor: pointer;
   outline: 0;
@@ -39,6 +52,7 @@
   box-sizing: border-box;
   font-family: var(--font-family-mono);
   font-size: var(--font-size);
+  line-height: var(--theme-line-height-base);
 
   &:hover .hotkey {
     background: var(--theme-focused-foreground);

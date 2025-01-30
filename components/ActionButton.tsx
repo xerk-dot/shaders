@@ -5,16 +5,22 @@ import * as Utilities from '@common/utilities';
 
 interface ActionButtonProps {
   onClick?: () => void;
-  hotkey?: any;
+  hotkey?: string | React.ReactElement<{ style?: React.CSSProperties }>;
   children?: React.ReactNode;
-  style?: any;
+  style?: React.CSSProperties;
   isSelected?: boolean;
 }
 
 const ActionButton: React.FC<ActionButtonProps> = ({ onClick, hotkey, children, style, isSelected }) => {
   return (
     <div className={Utilities.classNames(styles.root, isSelected ? styles.selected : null)} onClick={onClick} tabIndex={0} role="button">
-      {Utilities.isEmpty(hotkey) ? null : <span className={styles.hotkey}>{hotkey}</span>}
+      {hotkey && (
+        <span className={styles.hotkey}>
+          {typeof hotkey === 'string' ? hotkey : React.cloneElement(hotkey, {
+            style: { display: 'block', width: '20px', height: '12px', margin: '0' }
+          })}
+        </span>
+      )}
       <span className={styles.content} style={style}>
         {children}
       </span>

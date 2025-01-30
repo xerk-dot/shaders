@@ -29,8 +29,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               />
               {children}
               <Footer 
-                companyName="Shaders"
-                packageVersion={Package.version}
+                //companyName="Shaders"
+                //packageVersion={Package.version}
+                logo="✶"
+                logoRightAligned={true}
+                right={<></>}
               />
             </Suspense>
           </DefaultLayout>
