@@ -63,7 +63,7 @@ const Navigation: React.FC<NavigationProps> = ({ children, logoHref, logoTarget,
       
       <div className={styles.root} style={{ 
         background: logoRightAligned ? 'var(--theme-background)' : 'transparent',
-        position: 'relative',
+        position: 'fixed',
         left: 0,
         right: 0,
         width: '100%',

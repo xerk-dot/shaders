@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import ActionButton from '@components/ActionButton';
 import ActionListItem from '@components/ActionListItem-updated';
+import ModalTrigger from '@components/ModalTrigger';
 
 import { useHotkeys } from '@modules/hotkeys';
 
@@ -13,6 +14,8 @@ interface DropdownMenuItemProps {
   href?: string;
   target?: string;
   onClick?: () => void;
+  modal?: any;
+  modalProps?: Record<string, unknown>;
 }
 
 interface DropdownMenuProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -31,7 +34,35 @@ const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>((props,
 
   return (
     <div ref={ref} className={styles.root} style={style} {...rest}>
-      {items && items.map((each, index) => <ActionListItem key={`action-items-${index}`} children={each.children} icon={each.icon} href={each.href} target={each.target} onClick={each.onClick} />)}
+      {items &&
+        items.map((each, index) => {
+          if (each.modal) {
+            return (
+              <ModalTrigger key={`action-items-${index}`} modal={each.modal} modalProps={each.modalProps}>
+                <ActionListItem children={each.children} icon={each.icon} />
+              </ModalTrigger>
+            );
+          }
+
+          return (
+            <ActionListItem
+              key={`action-items-${index}`}
+              children={each.children}
+              icon={each.icon}
+              href={each.href}
+              target={each.target}
+              onClick={() => {
+                if (each.onClick) {
+                  each.onClick();
+                }
+
+                if (onClose) {
+                  onClose();
+                }
+              }}
+            />
+          );
+        })}
 
       <footer className={styles.footer}>
         Press space to{' '}
