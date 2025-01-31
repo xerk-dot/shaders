@@ -1,5 +1,4 @@
-import { vertexShader } from './shaders/dirty-notch';
-import { fragmentShader as dirtyNotchFragment } from './shaders/dirty-notch';
+import { vertexShader, fragmentShader as dirtyNotchFragment } from './shaders/dirty-notch';
 import { fragmentShader as seascapeFragment } from './shaders/seascape';
 import { fragmentShader as compoundEyeFragment } from './shaders/compound-eye';
 import { fragmentShader as sephoraBdsmFragment } from './shaders/sephora-bdsm';
@@ -10,7 +9,7 @@ export const shaderData = [
   {
     id: 'seascape',
     name: 'Seascape',
-    icon: '⭠',
+    icon: '🌊', // Added icon
     description: 'Animated seascape shader',
     sourceUrl: 'https://www.shadertoy.com/view/XslGRr',
     code: seascapeFragment,
@@ -19,7 +18,7 @@ export const shaderData = [
   {
     id: 'dirty-notch',
     name: 'Dirty Notch',
-    icon: '⭣',
+    icon: '🔍', // Added icon
     description: 'wireframe terrain viz w/ dynamic lighting + camera movement',
     sourceUrl: '',
     code: dirtyNotchFragment,
@@ -28,7 +27,7 @@ export const shaderData = [
   {
     id: 'compound-eye',
     name: '3000 compound eye',
-    icon: '⭠',
+    icon: '👀', // Added icon
     description: 'is watching u',
     sourceUrl: '',
     code: compoundEyeFragment,
@@ -37,7 +36,7 @@ export const shaderData = [
   {
     id: 'sephora-bdsm',
     name: 'sephora bdsm',
-    icon: '⭢',
+    icon: '💄', // Added icon
     description: 'ethylhexyl acetate',
     sourceUrl: '',
     code: sephoraBdsmFragment,
@@ -46,7 +45,7 @@ export const shaderData = [
   {
     id: 'orange-circuits',
     name: "Tomorrow's Parties",
-    icon: '⭢',
+    icon: '🎉', // Added icon
     description: 'Orange Circuits Scatter Wisdom Across the Acropolis to Thessaloniki\'s Port',
     sourceUrl: '',
     code: orangeCircuitsFragment,
@@ -55,7 +54,7 @@ export const shaderData = [
   {
     id: 'barry-b-benson',
     name: 'Barry B Benson',
-    icon: '🐝',
+    icon: '🐝', // Added icon
     description: 'Ya like jazz?',
     sourceUrl: '',
     code: barryBensonFragment,
