@@ -3,6 +3,7 @@ import { fragmentShader as dirtyNotchFragment } from './shaders/dirty-notch';
 import { fragmentShader as seascapeFragment } from './shaders/seascape';
 import { fragmentShader as compoundEyeFragment } from './shaders/compound-eye';
 import { fragmentShader as sephoraBdsmFragment } from './shaders/sephora-bdsm';
+import { fragmentShader as orangeCircuitsFragment } from './shaders/orange-circuits';
 
 export const shaderData = [
   {
@@ -39,6 +40,15 @@ export const shaderData = [
     description: 'ethylhexyl acetate',
     sourceUrl: '',
     code: sephoraBdsmFragment,
+    category: 'geometry'
+  },
+  {
+    id: 'orange-circuits',
+    name: "Tomorrow's Parties",
+    icon: '⭢',
+    description: 'Orange Circuits Scatter Wisdom Across the Acropolis to Thessaloniki\'s Port',
+    sourceUrl: '',
+    code: orangeCircuitsFragment,
     category: 'geometry'
   }
 ]; 

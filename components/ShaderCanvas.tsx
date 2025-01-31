@@ -5,6 +5,7 @@ import { vertexShader as seascapeVertex, fragmentShader as seascapeFragment } fr
 import { vertexShader as dirtyNotchVertex, fragmentShader as dirtyNotchFragment } from '../app/shaders/dirty-notch';
 import { vertexShader as compoundEyeVertex, fragmentShader as compoundEyeFragment } from '../app/shaders/compound-eye';
 import { vertexShader as sephoraBdsmVertex, fragmentShader as sephoraBdsmFragment } from '../app/shaders/sephora-bdsm';
+import { vertexShader as orangeCircuitsVertex, fragmentShader as orangeCircuitsFragment } from '../app/shaders/orange-circuits';
 
 interface ShaderCanvasProps {
   shaderId: string;
@@ -29,6 +30,10 @@ const shaders = {
   'sephora-bdsm': {
     vertex: sephoraBdsmVertex,
     fragment: sephoraBdsmFragment
+  },
+  'orange-circuits': {
+    vertex: orangeCircuitsVertex,
+    fragment: orangeCircuitsFragment
   }
 };
 
@@ -131,10 +136,41 @@ export default function ShaderCanvas({ shaderId, width, height, fadeBottom = fal
     const checkerboardLocation = gl.getUniformLocation(program, 'iCheckerboard');
     gl.uniform1f(checkerboardLocation, 0.0); // Use 0.0 instead of false
 
-    // Create and set up noise texture
-    const noiseTexture = createNoiseTexture(gl);
-    const channel0Location = gl.getUniformLocation(program, 'iChannel0');
-    gl.uniform1i(channel0Location, 0);
+    // Create and initialize noise texture
+    const noiseTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+    
+    // Generate noise data
+    const noiseSize = 256;
+    const noiseData = new Uint8Array(noiseSize * noiseSize * 4);
+    for (let i = 0; i < noiseData.length; i += 4) {
+      const value = Math.random() * 255;
+      noiseData[i] = value;
+      noiseData[i + 1] = value;
+      noiseData[i + 2] = value;
+      noiseData[i + 3] = 255;
+    }
+    
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      noiseSize,
+      noiseSize,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      noiseData
+    );
+    
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+    // Set uniform location for texture
+    const iChannel0Location = gl.getUniformLocation(program, 'iChannel0');
+    gl.uniform1i(iChannel0Location, 0);  // Use texture unit 0
 
     // Load texture
     const textureImage = new Image();
