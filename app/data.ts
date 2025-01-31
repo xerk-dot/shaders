@@ -4,6 +4,7 @@ import { fragmentShader as seascapeFragment } from './shaders/seascape';
 import { fragmentShader as compoundEyeFragment } from './shaders/compound-eye';
 import { fragmentShader as sephoraBdsmFragment } from './shaders/sephora-bdsm';
 import { fragmentShader as orangeCircuitsFragment } from './shaders/orange-circuits';
+import { fragmentShader as barryBensonFragment } from './shaders/barry-b-benson';
 
 export const shaderData = [
   {
@@ -49,6 +50,15 @@ export const shaderData = [
     description: 'Orange Circuits Scatter Wisdom Across the Acropolis to Thessaloniki\'s Port',
     sourceUrl: '',
     code: orangeCircuitsFragment,
+    category: 'geometry'
+  },
+  {
+    id: 'barry-b-benson',
+    name: 'Barry B Benson',
+    icon: '🐝',
+    description: 'Ya like jazz?',
+    sourceUrl: '',
+    code: barryBensonFragment,
     category: 'geometry'
   }
 ]; 

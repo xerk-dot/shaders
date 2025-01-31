@@ -6,6 +6,7 @@ import { vertexShader as dirtyNotchVertex, fragmentShader as dirtyNotchFragment 
 import { vertexShader as compoundEyeVertex, fragmentShader as compoundEyeFragment } from '../app/shaders/compound-eye';
 import { vertexShader as sephoraBdsmVertex, fragmentShader as sephoraBdsmFragment } from '../app/shaders/sephora-bdsm';
 import { vertexShader as orangeCircuitsVertex, fragmentShader as orangeCircuitsFragment } from '../app/shaders/orange-circuits';
+import { vertexShader as barryBensonVertex, fragmentShader as barryBensonFragment } from '../app/shaders/barry-b-benson';
 
 interface ShaderCanvasProps {
   shaderId: string;
@@ -34,6 +35,10 @@ const shaders = {
   'orange-circuits': {
     vertex: orangeCircuitsVertex,
     fragment: orangeCircuitsFragment
+  },
+  'barry-b-benson': {
+    vertex: barryBensonVertex,
+    fragment: barryBensonFragment
   }
 };
 
