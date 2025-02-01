@@ -28,7 +28,7 @@ const Navigation: React.FC<NavigationProps> = ({ children, logoHref, logoTarget,
 
   const renderModals = () => {
     switch (pathname) {
-      default:
+      case '/about':
         return (
           <>
             <ActionButton 
@@ -53,6 +53,8 @@ const Navigation: React.FC<NavigationProps> = ({ children, logoHref, logoTarget,
             </ActionButton>
           </>
         );
+      default:
+        return null;
     }
   };
 

@@ -1,11 +1,17 @@
 'use client';
 
 import * as React from 'react';
-
+import styles from '@components/RadioButtonGroup.module.scss';
 import RadioButton from '@components/RadioButton';
 
+interface RadioOption {
+  value: string;
+  label: string;
+  feedback?: string | React.ReactNode;
+}
+
 interface RadioButtonGroupProps {
-  options: { value: string; label: string }[];
+  options: RadioOption[];
   defaultValue?: string;
 }
 
@@ -16,14 +22,28 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({ options, defaultVal
     setSelectedValue(value);
   };
 
+  const selectedOption = options.find(option => option.value === selectedValue);
+
   return (
-    <>
+    <div className={styles.container}>
       {options.map((option) => (
-        <RadioButton key={option.value} name="example" value={option.value} selected={selectedValue === option.value} onSelect={handleSelect}>
-          {option.label}
-        </RadioButton>
+        <div key={option.value} className={styles.radioWrapper}>
+          <RadioButton 
+            name="example" 
+            value={option.value} 
+            selected={selectedValue === option.value} 
+            onSelect={handleSelect}
+          >
+            {option.label}
+          </RadioButton>
+          {selectedValue === option.value && option.feedback && (
+            <div className={styles.feedback}>
+              {option.feedback}
+            </div>
+          )}
+        </div>
       ))}
-    </>
+    </div>
   );
 };
 

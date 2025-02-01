@@ -4,6 +4,7 @@ import { fragmentShader as compoundEyeFragment } from './shaders/compound-eye';
 import { fragmentShader as sephoraBdsmFragment } from './shaders/sephora-bdsm';
 import { fragmentShader as orangeCircuitsFragment } from './shaders/orange-circuits';
 import { fragmentShader as barryBensonFragment } from './shaders/barry-b-benson';
+import { fragmentShader as xhamsterFragment } from './shaders/x';
 
 export const shaderData = [
   {
@@ -35,7 +36,7 @@ export const shaderData = [
   },
   {
     id: 'sephora-bdsm',
-    name: 'sephora bdsm',
+    name: 'sephora, bdsm',
     icon: '💄', // Added icon
     description: 'ethylhexyl acetate',
     sourceUrl: '',
@@ -58,6 +59,15 @@ export const shaderData = [
     description: 'Ya like jazz?',
     sourceUrl: '',
     code: barryBensonFragment,
+    category: 'geometry'
+  },
+  {
+    id: 'xhamster',
+    name: 'x',
+    icon: '🐹', 
+    description: '(formerly known as twitter) hamster',
+    sourceUrl: '',
+    code: xhamsterFragment,
     category: 'geometry'
   }
 ]; 

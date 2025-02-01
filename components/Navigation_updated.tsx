@@ -45,6 +45,17 @@ const Navigation: React.FC<NavigationProps> = ({ children, logoHref, logoTarget,
     }
   };
 
+  const renderLeft = () => {
+    return (
+      <>
+        <Link href="/about" style={{ textDecoration: 'none' }}>
+          <ActionButton>ABOUT</ActionButton>
+        </Link>
+        {left}
+      </>
+    );
+  };
+
   let logoElement = <button className={styles.logo}>{logo}</button>;
 
   if (onClickLogo) {
@@ -66,7 +77,7 @@ const Navigation: React.FC<NavigationProps> = ({ children, logoHref, logoTarget,
   return (
     <nav className={styles.root} style={{ background: logoRightAligned ? 'var(--theme-background)' : 'transparent' }}>
       {!logoRightAligned && logoElement}
-      <section className={styles.left}>{left}</section>
+      <section className={styles.left}>{renderLeft()}</section>
       <section className={styles.children}>{children}</section>
       {logoRightAligned && logoElement}
       <section className={styles.right}>{renderModals()}</section>

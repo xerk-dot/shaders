@@ -7,7 +7,7 @@ import { vertexShader as compoundEyeVertex, fragmentShader as compoundEyeFragmen
 import { vertexShader as sephoraBdsmVertex, fragmentShader as sephoraBdsmFragment } from '../app/shaders/sephora-bdsm';
 import { vertexShader as orangeCircuitsVertex, fragmentShader as orangeCircuitsFragment } from '../app/shaders/orange-circuits';
 import { vertexShader as barryBensonVertex, fragmentShader as barryBensonFragment } from '../app/shaders/barry-b-benson';
-
+import { vertexShader as xhamsterVertex, fragmentShader as xhamsterFragment } from '../app/shaders/x';
 interface ShaderCanvasProps {
   shaderId: string;
   width: number | string;  // Can now be number (pixels) or string (e.g., '100vw')
@@ -39,6 +39,10 @@ const shaders = {
   'barry-b-benson': {
     vertex: barryBensonVertex,
     fragment: barryBensonFragment
+  },
+  'xhamster': {
+  vertex: xhamsterVertex,
+  fragment: xhamsterFragment
   }
 };
 

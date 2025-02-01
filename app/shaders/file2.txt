@@ -1,0 +1,389 @@
+#define SHADERTOY
+
+#ifdef SHADERTOY
+    #define main() mainImage( out vec4 fragColor, in vec2 fragCoord )
+    #define u_canvas iResolution
+    #define u_mouse iMouse
+    #define u_time iTime
+    #define gl_FragCoord fragCoord
+    #define gl_FragColor fragColor
+	#define texture2D texture
+	#define textureCube texture
+	#define u_texture0 iChannel0
+	#define u_texture1 iChannel1
+	#define u_textureCube0 iChannel0
+	#define u_textureCube1 iChannel1
+#endif
+
+#ifdef SUPER_GRAPHIC_CARD
+	#define SOFT_SHADOW
+	#define MODEL_HARD
+#endif
+
+float time;
+#define FAR 100.
+#define ID_NONE -1.
+
+#define ID_FLOOR 0.
+#define ID_PATH 1.
+#define ID_GRID_SPH_LON 2.
+#define ID_GRID_SPH_LAT 3.
+#define ID_GRID_TRUCHET_LINE 4.
+#define ID_GRID_TRUCHET_MOVE 5.
+#define ID_HELIX 6.
+
+vec2 TF_TRUCHET(inout vec3 pp, float CSIZE, out vec3 ppp, out float dir0, out float dir) {
+	vec2 CID = TF_REPLICA(pp.xz, CSIZE);
+	dir = mod(CID.x+CID.y, 2.)==0. ? -1. : 1.;
+	float rnd = fract(sin(dot(CID + vec2(111, 73), vec2(7.63, 157.31)))*4832.3234);
+	dir0 = rnd<0.5 ? -1. : 1.;
+	if (dir0==-1.){
+		#if 0
+			TF_ROTATE(pp.xz, 0.5*PI);
+		#else
+			pp.xz = vec2(pp.z, -pp.x);
+		#endif
+	}
+	vec3 ppp1 = pp;
+	ppp1.xz -= 0.5*CSIZE;
+	TF_CYL(ppp1.xz, 0.5*CSIZE, 1.);
+	vec3 ppp2 = pp;
+	ppp2.xz -= -0.5*CSIZE;
+	TF_CYL(ppp2.xz, 0.5*CSIZE, 1.);
+	ppp = ppp1.z < ppp2.z ? ppp1 : ppp2;
+
+	return CID;
+}
+
+Object LonLatEllipseGrid(vec3 p, float n, vec3 S, float r_lon, float r_lat) {
+	vec3 q;
+	float d;
+	
+	Object object = Object(FAR, ID_NONE, p);
+
+	float maxS = max(S.x, max(S.y, S.z));
+	float minS = min(S.x, min(S.y, S.z));
+	r_lon /= maxS;
+	r_lat /= maxS;
+	
+	Object OBJ1 = Object(FAR, ID_GRID_SPH_LON, p);
+	{
+		q = p;
+		q /= S;
+		TF_REPLICA_ANGLE(q.xz, n, 0.);
+		TF_CYL(q.yz, 1., 1.);
+		d = TF_BALL(q.xz, r_lon);
+		OBJ1.distance = d;
+		OBJ1.position = q;
+	}
+	object = OR(object, OBJ1);
+	
+	Object OBJ2 = Object(FAR, ID_GRID_SPH_LAT, p);
+	{
+		q = p;
+		q /= S;
+		TF_CYL(q.xz, 0., 1.);
+		TF_REPLICA_ANGLE(q.yz, n, 0.);
+		TF_TRANSLATE(q.z, 1.);
+		d = TF_BALL(q.yz, r_lat);
+		OBJ2.distance = d;
+		OBJ2.position = q;
+	}
+	object = OR(object, OBJ2);
+	
+	if (object.id!=ID_NONE) object.distance *= minS;
+	
+	return object;
+}
+
+float period_ID;
+
+float map(vec3 p, inout Object object){
+	vec3 q, pp, ppp;
+	float d, d_cut, dir0, dir;
+
+	object = Object(FAR, ID_NONE, p);
+
+	float CSIZE = 3.;
+
+	p.y -= -1.;
+
+	float CID_Y = TF_REPLICA(p.y, 2.);
+	p.xz -= CID_Y*CSIZE;
+	
+	Object OBJ1 = Object(FAR, ID_FLOOR, p);
+	{
+		q = p;
+		q.x -= CSIZE;
+		q.z -= 0.5*CSIZE;
+		TF_REPLICA(q.xz, CSIZE);
+		d = AND(TF_BALL(q.xz, 0.2), TF_BETWEEN(q.y, 2.));
+		OBJ1.distance = d;
+	}
+	object = OR(object, OBJ1);
+		
+	
+	float r_tube = 0.2*CSIZE;
+	float r_sph = 0.18*CSIZE;
+
+	pp = p;
+	
+	pp.x -= 0.5*CSIZE;
+	vec2 CID = TF_TRUCHET(pp, CSIZE, ppp, dir0, dir);
+	
+	Object OBJ2 = Object(FAR, ID_PATH, p);
+	{
+		q = ppp;
+		q.y -= -(r_tube + 0.025);
+		d = TF_BOX(q.yz, vec2(0.025, 0.2));
+		OBJ2.distance = d;
+	}
+	object = OR(object, OBJ2);
+	
+	if (period_ID>0. && period_ID!=3.) {
+		Object OBJ2a = Object(FAR, ID_HELIX, p);
+		{
+			float R = r_tube-0.03;
+			float Step = 2.*PI*0.5*CSIZE/32.;
+			q = ppp;
+			q.x -= Step*0.25;
+			q.x -= 0.6*time*dir*dir0;
+			q = q.yxz;
+			TF_HELIX_Y(q, 1., R,  Step, 0.);
+			d = TF_BALL(q.xz, 0.03);
+			OBJ2a.distance = d;
+		}
+		object = OR(object, OBJ2a);
+	}
+	
+	if (period_ID>1.) {
+		q = ppp;
+		q.x -= -0.7*time*dir*dir0;
+		TF_REPLICA(q.x, (2.*PI*0.5*CSIZE)/4. );
+		TF_ROTATE(q.xy, -time*dir*dir0);
+		object = OR(object, LonLatEllipseGrid(q, 15., vec3(r_sph), 0.01, 0.01));
+	}
+	
+	if (period_ID>2.) {
+		pp = ppp;
+		TF_CYL(pp.zy, r_tube, 1.);
+		
+		CSIZE = (2.*PI*0.5*CSIZE)/70.;
+		pp.x -= dir*0.5*CSIZE;
+		CID = TF_TRUCHET(pp, CSIZE, ppp, dir0, dir);
+	
+		Object OBJ3 = Object(FAR, ID_GRID_TRUCHET_LINE, p);
+		{
+			q = ppp;
+			d = TF_BALL(q.yz, 0.0060);
+			q.x -= 0.08*time*dir*dir0;
+			float nFigs = 4.;
+			TF_REPLICA(q.x, 2.*PI*CSIZE*0.5/nFigs);
+			d_cut = TF_BALL(q.xy, 0.020);
+			d = AND(d, -d_cut);
+			OBJ3.distance = d;
+		}
+		object = OR(object, OBJ3);
+	
+		Object OBJ4 = Object(FAR, ID_GRID_TRUCHET_MOVE, p);
+		{
+			TF_TORUS_XZ(q, 0.015, 0.005);
+			d = TF_BEFORE(q.y, 0.);
+			OBJ4.distance = d;
+			OBJ4.position = q;
+		}
+		object = OR(object, OBJ4);
+	}
+	
+	if (object.id!=ID_NONE) object.distance = min(object.distance, 0.3);
+	
+    return object.distance;
+}
+
+float map ( in vec3 p ) {
+	Object object;
+	return map (p, object);
+}
+
+vec3 mapNormal (vec3 p, float eps) {
+	vec2 e = vec2 (eps, -eps);
+	vec4 v = vec4 (
+		map (p + e.xxx), 
+		map (p + e.xyy),
+	 	map (p + e.yxy), 
+		map (p + e.yyx)
+	);
+	return normalize (vec3 (v.x - v.y - v.z - v.w) + 2. * vec3 (v.y, v.z, v.w));
+}
+
+float rayMarch(inout Ray ray) {
+	ray.distance = ray.near;
+	float steps;
+	for (float i = 0.; i < 200.; ++i) {
+		ray.position = ray.origin + ray.direction * ray.distance;
+		ray.object.distance = map(ray.position, ray.object);
+		ray.hit = abs(ray.object.distance) < ray.epsilon;
+		if (ray.hit) break;
+		ray.distance += ray.object.distance*ray.swing;
+		if (ray.distance>ray.far) break;
+		steps = i + 1.;
+		if (steps>ray.steps) break;
+	}
+	return steps;
+}
+
+float softShadow( Ray ray, float k ) {
+    float shade = 1.0;
+    ray.distance = ray.near;    
+	float steps = 1.;
+    for ( int i = 0; i < 50; i++ ) {
+		ray.position = ray.origin + ray.direction * ray.distance;
+        ray.object.distance = map(ray.position);
+        shade = min( shade, smoothstep( 0.0, 1.0, k * ray.object.distance / ray.distance)); 
+		ray.hit = ray.object.distance < ray.epsilon;
+		if (ray.hit) break;
+        ray.distance += min( ray.object.distance, ray.far / ray.steps * 2. ); 
+        if (ray.distance > ray.far ) break; 
+		steps++;
+		if (steps>ray.steps) break;
+    }
+	#if 0
+		return shade;
+	#else
+    	return min( max( shade, 0.0 ) + 0.5, 1.0 ); 
+	#endif
+}
+
+vec3 SkyCol (vec3 rd) {
+	return mix(vec3 (0.5, 0.75, 1.), vec3(1.0), (0.5-rd.y));
+}
+
+vec4 getMaterial(Ray ray) {
+
+	vec3 mCol = vec3(1);
+	float mSpec = 0.5;
+	vec3 p = ray.position;
+	vec3 q = ray.object.position;
+	if(ray.object.id==ID_FLOOR) {
+		mCol = vec3(0.5,0.75,1);
+		mSpec = 0.1;
+	} else if(ray.object.id==ID_PATH) {
+		mCol = vec3(0, 0.5, 0);
+	} else if(ray.object.id==ID_GRID_SPH_LON) {
+		mCol = vec3(1,0,0);
+	} else if(ray.object.id==ID_GRID_SPH_LAT) {
+		mCol = vec3(1,0,0.5);
+	} else if(ray.object.id==ID_GRID_TRUCHET_LINE) {
+		mCol = vec3(0.5, 0.75, 1.);
+	} else if(ray.object.id==ID_GRID_TRUCHET_MOVE) {
+		mCol = vec3(1.);
+		q.x -= 0.1*time;
+		float id = TF_REPLICA(q.x, 2.*PI*0.015/4.);
+		if (mod(id, 2.)==1.) mCol = vec3(0.4);
+		mSpec = 1.;
+	} else if(ray.object.id==ID_HELIX) {
+		mCol = vec3(0.8);
+	}
+	return vec4(mCol, mSpec);
+}
+
+vec3 lighting(Ray ray, vec3 ltDir, vec4 mat) {
+	float sh = 1.0;
+	#ifdef SOFT_SHADOW
+		Ray ray1 = ray;
+		ray1.origin = ray.position;
+		ray1.direction = ltDir;
+		sh = softShadow(ray1, 240.);
+	#endif
+	float diff = clamp(dot(ray.normal,ltDir),0.,1.);
+	float spec =  pow(max(dot(ray.direction, reflect(ltDir, ray.normal)), 0.), 64.);
+	
+	return mat.rgb * (0.1 + 0.9*diff*sh) + spec*mat.a * sh;
+}
+
+vec3 render(Ray ray) {
+    vec3 col;
+	vec3 bg = SkyCol(ray.direction);
+	
+	rayMarch(ray);
+
+    if(ray.distance<FAR) {
+        ray.normal = mapNormal(ray.position, 0.001);
+		
+		vec4 mat = getMaterial(ray);
+		
+		#if 0
+			vec3 ltPos = ray.origin + vec3(0,2.,0);
+			vec3 ltDir = normalize(ltPos-ray.position);
+			float ltDist = length(ltPos-ray.position);
+			float att = 1./pow(ltDist, 0.1);
+		#else
+        	vec3 ltDir = -ray.direction;
+			float att = 1.;
+		#endif
+		col = lighting(ray, ltDir, mat)*att;
+
+		float fogStart = 6.;
+		vec3 fogColor = bg;
+		col = mix(col, fogColor, 1.-exp(-pow(ray.distance/fogStart, 3.)));
+    } else {
+        col = bg;
+    }
+     
+    col = clamp(col,0.,1.);
+    return col;
+}
+
+void main() {
+    time = u_time + 41.;
+	
+	float aspect = u_canvas.x/u_canvas.y;
+	vec2 uv = gl_FragCoord.xy/u_canvas.xy;
+	uv = 2.*uv - 1.;
+
+	vec2 mouse = u_mouse.xy / u_canvas.xy - 0.5;
+	if (u_mouse.xy==vec2(0)) mouse = vec2(0);
+
+	vec2 ori = vec2(
+		u_mouse.z==0. ? radians(-00.) : radians(-00.) + mouse.y*PI*2.,
+		u_mouse.z==0. ? 0.0*time : 0.0*time + mouse.x*PI*2.
+	);
+
+	#if 1
+		ori.x = clamp(ori.x, -PI/2., PI/2.);
+	#else
+		ori.x = clamp(ori.x, -radians(20.), radians(20.));
+	#endif
+
+	Camera cam;
+	{
+		cam.fov     = 45.;
+		cam.aspect  = aspect;
+		cam.origin  = vec3(1.5,0.,0.1*time);
+		cam.target  = cam.origin + vec3(0,0,1);
+		cam.up 		= vec3(0,1,0);
+		cam.vMat 	= TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
+		cam.mMat	= mat3(1);
+	}
+	
+	Ray ray = lookAt(uv, cam);
+	{
+		ray.near 	= 0.01;
+		ray.far  	= FAR;
+		ray.epsilon = 0.001;
+		ray.swing	= 1.;
+		ray.steps 	= 200.;
+	}
+	vec3 ro = ray.origin;
+	vec3 rd = ray.direction;
+
+	float uv0_value = TF_TIMER(time, 5., 20., period_ID);
+	
+	vec3 col = render(ray);
+
+    col = pow(col, vec3(.4545));
+	
+	TF_TIMER_VIEW(col, 5., uv0_value);
+	
+    gl_FragColor = vec4(col,1.0);
+}

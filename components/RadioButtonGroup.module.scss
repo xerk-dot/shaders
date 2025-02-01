@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.radioWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.feedback {
+  margin-left: calc(3ch + 2ch); // Aligns with the radio button content
+  padding: 8px;
+  background: var(--theme-button-background);
+  color: var(--theme-text);
+  font-size: var(--font-size);
+  line-height: var(--theme-line-height-base);
+  width: calc(100% - 5ch); // Full width minus figure width and spacing
+} 

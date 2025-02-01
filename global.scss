@@ -371,6 +371,10 @@ body {
   position: relative;
 }
 
+/* Add more vertical space after paragraphs */
+p {
+  margin-bottom: calc(var(--theme-line-height-base) * 1rem);
+}
 
 /* Global text selection styles */
 ::selection {
