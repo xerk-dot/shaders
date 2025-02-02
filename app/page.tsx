@@ -173,7 +173,7 @@ export default function Page(props) {
     opacity: .6
   }}>
     <ShaderCanvas 
-      shaderId="compound-eye"
+      shaderId="xhamster"
       width="100vw"
       height="100vh"
       fadeBottom={true}
