@@ -708,13 +708,13 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         cam.aspect = aspect;
         
         // Move the camera along the +X, -Y, and +Z axes
-        cam.origin = vec3(1.5 + 0.1 * time, -0.1 * time, 0.1 * time);
+        cam.origin = vec3(1.5 + 1.1 * time, 0, 0);
         
         cam.target = cam.origin + vec3(0, 0, 1);
         cam.up = vec3(0, 1, 0);
         
         // Apply a fixed tilt to the positive X and negative Y axes
-        mat3 fixedTilt = TF_ROTATE_X(radians(5.0)) * TF_ROTATE_Y(radians(0.0));
+        mat3 fixedTilt = TF_ROTATE_X(radians(5.0)) * TF_ROTATE_Y(radians(125.0));
         
         // Combine fixed tilt with dynamic tilt
         cam.vMat = fixedTilt * TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
