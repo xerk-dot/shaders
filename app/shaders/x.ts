@@ -423,9 +423,6 @@ export const fragmentShader = `#version 300 es
     return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
   }
 
-
-
-
   float time;
 #define FAR 100.
 #define ID_NONE -1.
