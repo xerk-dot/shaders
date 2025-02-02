@@ -14,7 +14,9 @@ export default function AboutPage() {
 
   return (
     <>
-      <Hero word="(about me)" />
+      <div style={{ marginTop: '5vh' }}>
+        <Hero word="(about me)" />
+      </div>
       <div className={styles['cards-container']}>
         <Card maxWidth="100%" centered title="huh?">
           <Image
@@ -46,7 +48,7 @@ export default function AboutPage() {
           <p>big thanks to the webgpu/dev community for keeping the chaos alive. y'all are the real mvps. also, sorry to my gpu. i promise i'll stop setting you on fire someday. maybe.</p>
         </Card>
 
-        <Card title="q: what do you think id want you to tell me?" maxWidth="100%" centered>
+        <Card title="q: what do u think id want u to tell me?" maxWidth="100%" centered>
           <RadioButtonGroup
             defaultValue="none"
             options={[

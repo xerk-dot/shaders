@@ -28,10 +28,32 @@ const Card: React.FC<CardProps> = ({ children, mode, title, centered, glow, maxW
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const splitTitle = (title: string) => {
+    const maxLength = 20; // Define a max length for each line
+    const words = title.split(' ');
+    let lines: string[] = []; // Explicitly define the type of lines as string[]
+    let currentLine = '';
+
+    words.forEach(word => {
+      if ((currentLine + word).length <= maxLength) {
+        currentLine += (currentLine ? ' ' : '') + word;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines.map((line, index) => <div key={index} style={{ textAlign: lines.length > 1 ? 'center' : 'left' }}>{line}</div>);
+  };
+
   let titleElement = (
     <header className={styles.action}>
       <div className={styles.left} aria-hidden="true"></div>
-      <h2 className={styles.title}>{title}</h2>
+      <h2 className={styles.title}>{splitTitle(title)}</h2>
       <div className={styles.right} aria-hidden="true"></div>
     </header>
   );
@@ -40,7 +62,7 @@ const Card: React.FC<CardProps> = ({ children, mode, title, centered, glow, maxW
     titleElement = (
       <header className={styles.action}>
         <div className={styles.leftCorner} aria-hidden="true"></div>
-        <h2 className={styles.title}>{title}</h2>
+        <h2 className={styles.title}>{splitTitle(title)}</h2>
         <div className={styles.right} aria-hidden="true"></div>
       </header>
     );
@@ -50,7 +72,7 @@ const Card: React.FC<CardProps> = ({ children, mode, title, centered, glow, maxW
     titleElement = (
       <header className={styles.action}>
         <div className={styles.left} aria-hidden="true"></div>
-        <h2 className={styles.title}>{title}</h2>
+        <h2 className={styles.title}>{splitTitle(title)}</h2>
         <div className={styles.rightCorner} aria-hidden="true"></div>
       </header>
     );

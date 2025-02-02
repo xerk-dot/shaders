@@ -38,7 +38,7 @@ export const shaderData = [
     id: 'sephora-bdsm',
     name: 'sephora, bdsm',
     icon: '💄', // Added icon
-    description: 'ethylhexyl acetate',
+    description: '',
     sourceUrl: '',
     code: sephoraBdsmFragment,
     category: 'geometry'
@@ -47,14 +47,14 @@ export const shaderData = [
     id: 'orange-circuits',
     name: "Tomorrow's Parties",
     icon: '🎉', // Added icon
-    description: 'Orange Circuits Scatter Wisdom Across the Acropolis to Thessaloniki\'s Port',
+    description: 'Orange Circuits Scatter Wisdom Across the Acropolis and into your Mind.',
     sourceUrl: '',
     code: orangeCircuitsFragment,
     category: 'geometry'
   },
   {
     id: 'barry-b-benson',
-    name: 'Barry B Benson',
+    name: 'Bee Good',
     icon: '🐝', // Added icon
     description: 'Ya like jazz?',
     sourceUrl: '',
@@ -63,9 +63,9 @@ export const shaderData = [
   },
   {
     id: 'xhamster',
-    name: 'x',
+    name: 'hamster',
     icon: '🐹', 
-    description: '(formerly known as twitter) hamster',
+    description: '(formerly known as twitter)',
     sourceUrl: '',
     code: xhamsterFragment,
     category: 'geometry'
