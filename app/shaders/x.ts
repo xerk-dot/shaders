@@ -704,20 +704,43 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     #endif
     Camera cam;
     {
-        cam.fov = 60.;
-        cam.aspect = aspect;
-        
-        // Move the camera along the +X, -Y, and +Z axes
-        cam.origin = vec3(1.5 + 1.1 * time, 0, 0);
-        
-        cam.target = cam.origin + vec3(0, 0, 1);
-        cam.up = vec3(0, 1, 0);
-        
-        // Apply a fixed tilt to the positive X and negative Y axes
-        mat3 fixedTilt = TF_ROTATE_X(radians(5.0)) * TF_ROTATE_Y(radians(125.0));
-        
-        // Combine fixed tilt with dynamic tilt
-        cam.vMat = fixedTilt * TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
+
+                float timeSegment = mod(time, 40.0);
+
+
+        if (timeSegment < 8.0) {
+            cam.fov = 60.;
+            cam.aspect = aspect;
+            cam.origin = vec3(1.5 + 1.1 * time, 0, 0);
+            cam.target = cam.origin + vec3(0, 0, 1);
+            cam.up = vec3(0, 1, 0);
+            mat3 fixedTilt = TF_ROTATE_X(radians(5.0)) * TF_ROTATE_Y(radians(125.0));
+            cam.vMat = fixedTilt * TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
+        } else if (timeSegment < 16.0) {
+            cam.fov = 90.;
+            cam.aspect = aspect;
+            cam.origin = vec3(13. +.4*time, 11, -7);
+            cam.target = cam.origin + vec3(1.8, 0, 30);
+            cam.up = vec3(0, 1, 0);
+            mat3 fixedTilt = TF_ROTATE_Y(0.0); // Tilt sideways
+            cam.vMat = fixedTilt;
+        } else if (timeSegment < 24.0) {
+            cam.fov = 75.;
+            cam.aspect = aspect;
+            cam.origin = vec3(15, 12, -5);
+            cam.target = cam.origin + vec3(12, 10, 1.3);
+            cam.up = vec3(0, 1, 0);
+            mat3 fixedTilt = TF_ROTATE_Y(radians(0.0)); // Tilt sideways
+            cam.vMat = fixedTilt;
+        } else {
+            cam.fov = 90.;
+            cam.aspect = aspect;
+            cam.origin = vec3(3.0 + 1.1 * time, 0, 1.0);
+            cam.target = cam.origin + vec3(0, 0, 1);
+            cam.up = vec3(0, 1, 0);
+            mat3 fixedTilt = TF_ROTATE_X(radians(20.0)) * TF_ROTATE_Y(radians(50.0));
+            cam.vMat = fixedTilt * TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
+        }
         
         cam.mMat = mat3(1);
     }
