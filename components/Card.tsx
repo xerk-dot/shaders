@@ -28,7 +28,9 @@ const Card: React.FC<CardProps> = ({ children, mode, title, centered, glow, maxW
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const splitTitle = (title: string) => {
+  const splitTitle = (title: string | undefined) => {
+    if (!title) return null; // Return null or a default value if title is undefined
+
     const maxLength = 20; // Define a max length for each line
     const words = title.split(' ');
     let lines: string[] = []; // Explicitly define the type of lines as string[]
