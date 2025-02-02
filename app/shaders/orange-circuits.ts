@@ -214,53 +214,6 @@ export const fragmentShader = `#version 300 es
     return 0.25*tanh(col);
   }
 
-  vec3 cityscape(vec2 sp) {
-    vec3 col = vec3(0.0);
-    
-    // Base ground - moved much higher up
-    float ground = smoothstep(0.2, -0.2, sp.x + 2.5); // Moved way up
-    
-    // Generate trees at different positions
-    for(int i = 0; i < 15; i++) {
-        float x = hash1(float(i) * 123.456) * 2.0 - 1.0;
-        float scale = mix(0.15, 0.3, hash1(float(i) * 789.012));
-        float width = scale * 0.4;
-        
-        // Tree trunk - moved much higher
-        vec2 trunkPos = sp - vec2(x, 2.2);
-        float trunk = smoothstep(width * 0.2, 0.0, abs(trunkPos.x)) * 
-                     smoothstep(scale * 0.8, 0.0, abs(trunkPos.y + 0.2));
-        
-        // Tree top - moved much higher
-        vec2 topPos = sp - vec2(x, 2.4);
-        float triangle = max(abs(topPos.x) * 2.0 - topPos.y * 0.8, -topPos.y);
-        float top = smoothstep(width, 0.0, triangle);
-        
-        col += vec3(0.04, 0.08, 0.04) * trunk;
-        col += vec3(0.08, 0.2, 0.08) * top;
-    }
-    
-    // Add buildings - moved much higher
-    for(int i = 0; i < 10; i++) {
-        float x = hash1(float(i) * 567.123) * 2.0 - 1.0;
-        float height = mix(0.2, 0.5, hash1(float(i) * 432.123));
-        float width = mix(0.05, 0.15, hash1(float(i) * 987.432));
-        
-        vec2 buildingPos = sp - vec2(x, 2.3);
-        float building = smoothstep(width, 0.0, abs(buildingPos.x)) * 
-                        smoothstep(height, 0.0, abs(buildingPos.y + 0.1));
-        
-        vec2 windowUV = vec2(buildingPos.x / width, buildingPos.y / height) * 10.0;
-        float windows = step(0.8, fract(windowUV.x)) * step(0.8, fract(windowUV.y));
-        float windowLight = windows * 0.5 * (0.5 + 0.5 * sin(TIME * 0.2 + float(i)));
-        
-        col += vec3(0.05, 0.08, 0.12) * building;
-        col += vec3(0.2, 0.3, 0.4) * building * windowLight;
-    }
-    
-    return col * ground;
-  }
-
   vec3 renderBackground(vec3 ro, vec3 rd, vec3 lp, vec4 md) {
     vec2 sp = toSpherical(rd.xzy).yz;
     float sf = 0.0;
@@ -277,10 +230,6 @@ export const fragmentShader = `#version 300 es
     if (abs(sp.x + 2.5) < 0.1) {
         col += vec3(1.0, 0.0, 0.0); // Bright red line to show position
     }
-    
-    // Add cityscape with increased intensity
-    vec3 cityCol = cityscape(sp);
-    col += cityCol * 2.0; // Doubled intensity to make it more visible
     
     if (rd.y < 0.0) {
         col = vec3(0.0);
@@ -363,7 +312,6 @@ export const fragmentShader = `#version 300 es
     backgroundColor = aces_approx(backgroundColor);
     backgroundColor = sRGB(backgroundColor);
     
-    // Original orange circuits code
     vec2 r = iResolution.xy;
     vec2 I = gl_FragCoord.xy;
     vec2 circuitP = (I+I-r) / r.y * mat2(4.0,-3.0,3.0,4.0);
