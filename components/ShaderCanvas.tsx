@@ -183,7 +183,7 @@ export default function ShaderCanvas({ shaderId, width, height, fadeBottom = fal
 
     // Load texture
     const textureImage = new Image();
-    textureImage.src = 'app/pack.png'; // Make sure this path is correct
+    textureImage.src = ''//app/pack.png'; // Make sure this path is correct
     textureImage.onload = () => {
       // Activate texture unit 1 before binding
       gl.activeTexture(gl.TEXTURE1);
