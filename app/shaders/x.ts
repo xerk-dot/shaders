@@ -694,8 +694,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 mouse = iMouse.xy / iResolution.xy - 0.5;
     if (iMouse.xy == vec2(0)) mouse = vec2(0);
     vec2 ori = vec2(
-        iMouse.z == 0. ? radians(-00.) : radians(-00.) + mouse.y * PI * 2.,
-        iMouse.z == 0. ? 0.0 * time : 0.0 * time + mouse.x * PI * 2.
+        iMouse.z == 0. ? radians(-5.) : radians(-5.) + mouse.y * PI * 2.,
+        iMouse.z == 0. ? radians(-5.) : radians(-5.) + mouse.x * PI * 2.
     );
     #if 1
     ori.x = clamp(ori.x, -PI / 2., PI / 2.);
@@ -704,12 +704,21 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     #endif
     Camera cam;
     {
-        cam.fov = 45.;
+        cam.fov = 60.;
         cam.aspect = aspect;
-        cam.origin = vec3(1.5, 0., 0.1 * time);
+        
+        // Move the camera along the +X, -Y, and +Z axes
+        cam.origin = vec3(1.5 + 0.1 * time, -0.1 * time, 0.1 * time);
+        
         cam.target = cam.origin + vec3(0, 0, 1);
         cam.up = vec3(0, 1, 0);
-        cam.vMat = TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
+        
+        // Apply a fixed tilt to the positive X and negative Y axes
+        mat3 fixedTilt = TF_ROTATE_X(radians(5.0)) * TF_ROTATE_Y(radians(0.0));
+        
+        // Combine fixed tilt with dynamic tilt
+        cam.vMat = fixedTilt * TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
+        
         cam.mMat = mat3(1);
     }
     Ray ray = lookAt(uv, cam);
