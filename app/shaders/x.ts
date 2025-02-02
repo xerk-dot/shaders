@@ -4,225 +4,228 @@ export const vertexShader = `#version 300 es
     gl_Position = position;
   }
 `;
-
 export const fragmentShader = `#version 300 es
 
-  precision highp float;
-  uniform vec2 iResolution;
-  uniform float iTime;
-  out vec4 fragColor;
+precision highp float;
+uniform vec2 iResolution;
+uniform float iTime;
+out vec4 fragColor;
 
-  uniform vec4 iMouse;
+uniform vec4 iMouse;
 
+const float PI = radians(180.);
 
+struct Camera {
+  float fov, aspect;
+  vec3 origin, target, up;
+  mat3 vMat, mMat;
+  float factor;
+  vec3 forward, right, position, coord;
+  mat3 pMat, uMat;
+};
 
+struct Object {
+  float distance;
+  float id;
+  vec3 position;
+};
 
+struct Ray {
+  vec3 origin;
+  vec3 direction;
+  float near;
+  float far;
+  float epsilon;
+  float steps;
+  float swing;
+  float distance;
+  vec3 position;
+  vec3 normal;
+  bool hit;
+  Object object;
+};
 
+Ray lookAt(in vec2 uv, inout Camera cam) {
+  cam.factor = 1.0 / tan(radians(cam.fov / 2.0));
+  cam.forward = normalize(cam.target - cam.origin);
+  cam.right = normalize(cross(cam.up, cam.forward));
+  cam.up = cross(cam.forward, cam.right);
+  cam.position = cam.origin + cam.factor * cam.forward;
+  cam.coord = cam.position + uv.x * cam.right * cam.aspect + uv.y * cam.up;
+  cam.pMat = mat3(cam.right, cam.up, cam.forward);
 
+  Ray ray;
+  ray.origin = cam.mMat * cam.origin;
+  ray.direction = cam.mMat * normalize(cam.pMat * cam.vMat * vec3(uv.x * cam.aspect, uv.y, cam.factor));
+  ray.near = 0.01;
+  ray.far = 100.0;
+  ray.epsilon = 0.001;
+  ray.swing = 1.0;
+  ray.steps = 200.0;
 
-  const float PI = radians(180.);
-  struct Camera {
-    float fov, aspect;
-    vec3  origin, target, up;
-    mat3 vMat, mMat;
-    float factor;
-    vec3  forward, right, position, coord;
-    mat3 pMat, uMat;
-  };
+  return ray;
+}
 
-  struct Object {
-    float   distance;
-    float 	id;
-    vec3 	position;
-  };
+float EPS = 0.01;
 
-  struct Ray {
-    vec3  origin;
-    vec3  direction;
-    float near;
-    float far;
-    float epsilon;
-    float steps;
-    float swing;
-    float distance;
-    vec3  position;
-    vec3  normal;
-    bool  hit;
-    Object object;
-  };
-  Ray lookAt (in vec2 uv, inout Camera cam) {
-    cam.factor		= 1.0/tan(radians(cam.fov/2.));
-    cam.forward 	= normalize(cam.target-cam.origin); 
-    cam.right 		= normalize(cross(cam.up, cam.forward));
-    cam.up 			= cross(cam.forward, cam.right);
-    cam.position 	= cam.origin + cam.factor * cam.forward;
-    cam.coord 		= cam.position + uv.x * cam.right*cam.aspect + uv.y * cam.up;
-    cam.pMat 		= mat3(cam.right, cam.up, cam.forward);
+#define TF_ROUND(d, R) (length(max(d, 0.0)) - (R))
+#define TF_BOX_ROUND(p, S, R) TF_ROUND(abs(p) - (S), R)
+#define TF_BOX_ROUND1(p, S, R) TF_ROUND(abs(p) - (S) + R, R)
+#define TF_BOX(p, S) TF_BOX_ROUND(p, S, 0.0)
+#define TF_BOX1(p, S) TF_BOX_ROUND(p, S, EPS)
+#define TF_BOXE(p, S) TF_BOX_ROUND(p, S - EPS, EPS)
+#define TF_BOX3D(p, S) max(abs((p).x) - vec3(S).x, max(abs((p).y) - vec3(S).y, abs((p).z) - vec3(S).z))
+#define TF_BOX2D(p, S) max(abs((p).x) - vec2(S).x, abs((p).y) - vec2(S).y)
+#define TF_BOX3D_SD(p, S) TF_BOX(p, S) + min(TF_BOX3D(p, S), 0.0)
+#define TF_BOX2D_SD(p, S) TF_BOX(p, S) + min(TF_BOX2D(p, S), 0.0)
 
-    Ray ray;
-    {
-      ray.origin 		= cam.mMat * cam.origin;
-      ray.direction 	= cam.mMat * normalize( cam.pMat * cam.vMat * vec3(uv.x*cam.aspect, uv.y, cam.factor));
-      ray.near		= 0.01;
-      ray.far			= 100.;
-      ray.epsilon		= 0.001;
-      ray.swing		= 1.0;
-      ray.steps		= 200.;
+#define TF_ROUND_MIN(d, R) (-length(min(d, 0.0)) + (R))
+#define TF_CROSS_ROUND(p, S, R) TF_ROUND_MIN(abs(p) - (S), R)
+#define TF_CROSS(p, S) TF_CROSS_ROUND(p, S, 0.0)
+#define TF_CROSS3D(p, S) min(abs((p).x) - vec3(S).x, min(abs((p).y) - vec3(S).y, abs((p).z) - vec3(S).z))
+#define TF_CROSS2D(p, S) min(abs((p).x) - vec2(S).x, abs((p).y) - vec2(S).y)
+#define TF_CROSS3D_SD(p, S) TF_CROSS(p, S) + max(TF_CROSS3D(p, S), 0.0)
+#define TF_CROSS2D_SD(p, S) TF_CROSS(p, S) + max(TF_CROSS2D(p, S), 0.0)
+
+#define TF_BALL(p, R) TF_ROUND(abs(p), R)
+#define TF_ELLIPSE3D(p, r) min((r).x, min((r).y, (r).z)) * TF_BALL((p) / (r), 1.0)
+#define TF_ELLIPSE2D(p, r) min((r).x, (r).y) * TF_BALL((p) / (r), 1.0)
+#define TF_SEGMENT(p, a, b, r) TF_BALL((p) - (a) - ((b) - (a)) * clamp(dot((p) - (a), (b) - (a)) / dot((b) - (a), (b) - (a)), 0.0, 1.0), r)
+
+#define TF_BEFORE(p, p1) (p - (p1))
+#define TF_BEFORE_EPS(p, p1) TF_ROUND(p - (p1) + EPS, EPS)
+#define TF_BEFORE_PLANE(p, normal, off) dot(p, normal) - (off)
+#define TF_BEFORE_ROTATE(p, ang, off) dot((p).xy, cos((ang) + vec2(0, 0.5 * PI))) - (off)
+
+#define TF_AFTER(p, p1) (-p + (p1))
+#define TF_AFTER_EPS(p, p1) TF_ROUND(-p + (p1) + EPS, EPS)
+#define TF_AFTER_PLANE(p, normal, off) dot(-p, normal) + (off)
+#define TF_AFTER_ROTATE(p, ang, off) dot((-p).xy, cos((ang) + vec2(0, 0.5 * PI))) + (off)
+
+#define TF_BETWEEN(p, p1) (abs(p) - (p1))
+#define TF_BETWEEN_EPS(p, p1) TF_ROUND(abs(p) - (p1) + EPS, EPS)
+#define TF_BETWEEN2(p, p1, p2) (abs(p - 0.5 * ((p1) + (p2))) - 0.5 * ((p2) - (p1)))
+#define TF_BETWEEN_PLANE(p, normal, off) AND(TF_AFTER_PLANE(p, normal, -off), TF_BEFORE_PLANE(p, normal, off))
+#define TF_BETWEEN_ROTATE(p, ang, off) AND(TF_AFTER_ROTATE((p).xy, ang, -0.5 * off), TF_BEFORE_ROTATE((p).xy, ang, 0.5 * off))
+
+#define TF_TRANSLATE(p, d) p -= d;
+#define TF_SCALE(p, s) p /= s
+
+#if 0
+  #define TF_CYL(p, R, n) p = vec2((R) * atan(p.x, p.y), TF_BALL(p.xy, R))
+#else
+  #define TF_CYL(p, R, n) p = vec2((R) * atan(p.x, p.y), pow(length(pow(p.xy, vec2(n))), 1.0 / float(n)) - (R))
+#endif
+
+#if 0
+  #define TF_ROTATE(p, a) p = mat2(cos(a), sin(a), -sin(a), cos(a)) * p
+#else
+  #define TF_ROTATE(p, a) p = p.xy * cos(a) * vec2(1.0, 1.0) + p.yx * sin(a) * vec2(-1.0, 1.0)
+#endif
+
+#define TF_ROTATE_MAT2(a) mat2(cos(a), sin(a), -sin(a), cos(a))
+#define TF_ROTATE_X(a) mat3(1.0, 0.0, 0.0, 0.0, cos(a), -sin(a), 0.0, sin(a), cos(a))
+#define TF_ROTATE_Y(a) mat3(cos(a), 0.0, -sin(a), 0.0, 1.0, 0.0, sin(a), 0.0, cos(a))
+#define TF_ROTATE_Z(a) mat3(cos(a), -sin(a), 0.0, sin(a), cos(a), 0.0, 0.0, 0.0, 1.0)
+#define TF_ROTATE_X_90(p) p.xyz = p.xzy
+#define TF_ROTATE_Y_90(p) p.xyz = p.zyx
+#define TF_ROTATE_Z_90(p) p.xyz = p.yxz
+#define TF_MIRROR(p, d) p = abs(p) - (d)
+
+#define TF_REPLICA(p, d) \
+  floor((p) / (d) + 0.5); \
+  p = mod((p) + 0.5 * (d), d) - 0.5 * (d)
+
+#define TF_REPLICA_LIMIT(p, d, ida, idb) \
+  floor((p) / (d) + 0.5); \
+  p = p - (d) * clamp(floor((p) / (d) + 0.5), ida, idb)
+
+#define TF_REPLICA_LIMIT_MIRROR(p, d, id) \
+  floor((p = p - 0.5 * (d)) / (d) + 0.5); \
+  p = p - (d) * clamp(floor((p) / (d) + 0.5), -id, id - 1.0)
+
+#define TF_REPLICA_ANGLE_POLAR(p, n, off) \
+  floor(mod(atan(p.x, p.y) + off + PI / (n), 2.0 * PI) / (2.0 * PI / (n))); \
+  p = vec2(atan(p.x, p.y) + off, length(p.xy)); \
+  p.x = mod(p.x + 0.5 * (2.0 * PI / (n)), (2.0 * PI / (n))) - 0.5 * (2.0 * PI / (n))
+
+#if 1
+  #define TF_REPLICA_ANGLE(p, n, off) \
+    floor(mod(atan(p.x, p.y) + off + PI / (n), 2.0 * PI) / (2.0 * PI / (n))); \
+    TF_ROTATE(p.xy, -off + (2.0 * PI / (n)) * floor(mod(atan(p.x, p.y) + off + PI / (n), 2.0 * PI) / (2.0 * PI / (n))))
+#else
+  #define TF_REPLICA_ANGLE(p, n, off) \
+    TF_REPLICA_ANGLE_POLAR(p, n, off); \
+    p = p.y * vec2(sin(p.x), cos(p.x))
+#endif
+
+#if 1
+  #define TF_HELIX_Y(p, N, R, Step, Nrot) \
+    TF_CYL(p.xz, R, 1.0); \
+    { \
+      float a = floor(N) * p.x / (2.0 * PI * (R)); \
+      TF_TRANSLATE(p.y, (Step) * a); \
+      TF_REPLICA(p.y, (Step)); \
+      TF_ROTATE(p.yz, (Nrot) * PI * a); \
+    } \
+    p = p.zxy
+#else
+  #define TF_HELIX_Y(p, N, R, Step, Nrot) \
+    TF_CYL(p.xz, R, 1.0); \
+    { \
+      float a = floor(N) * p.x / (2.0 * PI * (R)); \
+      TF_TRANSLATE(p.y, (Step) * a); \
+      float id = TF_REPLICA(p.y, (Step)); \
+      p.x -= -id * (2.0 * PI * R) / floor(N); \
+      TF_ROTATE(p.yz, (Nrot) * PI * a); \
+    } \
+    p = p.zxy
+#endif
+
+#define TF_TORUS_XZ(p, R, r) \
+  TF_CYL(p.xz, R, 1.0); \
+  TF_CYL(p.yz, r, 1.0); \
+  p = p.xzy
+
+#define TF_REPLICA_SPIN_Y(p, n, R, step, sect) \
+  { \
+    float a = atan(p.x, p.z) / (2.0 * PI); \
+    p.y -= a * (n) * (step); \
+    TF_REPLICA(p.y, step); \
+    TF_REPLICA_ANGLE(p.xz, sect, 0.0); \
+    p.z -= R; \
+  } \
+  p = p.zxy;
+
+#define TF_REPLICA_SPIN(p1, p2, n, step) \
+  p1 -= (atan((p2).x, (p2).y) / (2.0 * PI)) * (n) * (step); \
+  TF_REPLICA(p1, (step))
+
+#define TF_REPLICA_SPIN_LIMIT(p1, p2, n, step, ida, idb) \
+  p1 -= (atan((p2).x, (p2).y) / (2.0 * PI)) * (n) * (step); \
+  TF_REPLICA_LIMIT(p1, (step), ida, idb)
+
+#if 1
+  #define TF_SPIRAL(p, n, k) \
+    length(p.xy); \
+    { \
+      vec2 p0 = p.xy; \
+      p.y = atan(p.x, p.y) * (n) / (2.0 * PI); \
+      p.x = p.y - (k) * length(p0.xy); \
+      p.x += -floor(p.x + 0.5); \
     }
-    return ray;
-  }
-  float EPS = 0.01;
-  #define TF_ROUND(d, R) (length(max(d, 0.)) - (R))
-  #define TF_BOX_ROUND(p, S, R) TF_ROUND(abs(p)-(S), R)
-  #define TF_BOX_ROUND1(p, S, R) TF_ROUND(abs(p)-(S) + R, R)
-  #define TF_BOX(p, S) TF_BOX_ROUND(p, S, 0.)
-  #define TF_BOX1(p, S) TF_BOX_ROUND(p, S, EPS)
-  #define TF_BOXE(p, S) TF_BOX_ROUND(p, S - EPS, EPS)
-  #define TF_BOX3D(p, S) max(abs((p).x)-vec3(S).x, max(abs((p).y)-vec3(S).y, abs((p).z)-vec3(S).z))
-  #define TF_BOX2D(p, S) max(abs((p).x)-vec2(S).x, abs((p).y)-vec2(S).y)
-  #define TF_BOX3D_SD(p, S) TF_BOX(p, S) + min(TF_BOX3D(p, S), 0.)
-  #define TF_BOX2D_SD(p, S) TF_BOX(p, S) + min(TF_BOX2D(p, S), 0.)
-
-  #define TF_ROUND_MIN(d, R) (-length(min(d, 0.)) + (R))
-  #define TF_CROSS_ROUND(p, S, R) TF_ROUND_MIN(abs(p)-(S), R)
-  #define TF_CROSS(p, S) TF_CROSS_ROUND(p, S, 0.)
-  #define TF_CROSS3D(p, S) min(abs((p).x)-vec3(S).x, min(abs((p).y)-vec3(S).y, abs((p).z)-vec3(S).z))
-  #define TF_CROSS2D(p, S) min(abs((p).x)-vec2(S).x, abs((p).y)-vec2(S).y)
-  #define TF_CROSS3D_SD(p, S) TF_CROSS(p, S) + max(TF_CROSS3D(p, S), 0.)
-  #define TF_CROSS2D_SD(p, S) TF_CROSS(p, S) + max(TF_CROSS2D(p, S), 0.)
-
-  #define TF_BALL(p, R) TF_ROUND(abs(p), R)
-  #define TF_ELLIPSE3D(p, r) min ((r).x, min((r).y, (r).z)) * TF_BALL((p)/(r), 1.)
-  #define TF_ELLIPSE2D(p, r) min ((r).x, (r).y) * TF_BALL((p)/(r), 1.)
-  #define TF_SEGMENT(p, a, b, r) TF_BALL((p)-(a) - ((b)-(a)) * clamp( dot((p)-(a),(b)-(a))/dot((b)-(a),(b)-(a)), 0.0, 1.0 ), r)
-
-  #define TF_BEFORE(p, p1) (p - (p1))
-  #define TF_BEFORE_EPS(p, p1) TF_ROUND(p - (p1) + EPS, EPS)
-  #define TF_BEFORE_PLANE(p, normal, off) dot(p, normal) - (off)
-  #define TF_BEFORE_ROTATE(p, ang, off) dot((p).xy, cos ((ang) + vec2 (0, 0.5 * PI))) - (off)
-
-  #define TF_AFTER(p, p1) (-p + (p1))
-  #define TF_AFTER_EPS(p, p1) TF_ROUND(-p + (p1) + EPS, EPS)
-  #define TF_AFTER_PLANE(p, normal, off) dot(-p, normal) + (off)
-  #define TF_AFTER_ROTATE(p, ang, off) dot((-p).xy, cos ((ang) + vec2 (0, 0.5 * PI))) + (off)
-
-  #define TF_BETWEEN(p, p1) (abs(p) - (p1))
-  #define TF_BETWEEN_EPS(p, p1) TF_ROUND(abs(p) - (p1) + EPS, EPS)
-  #define TF_BETWEEN2(p, p1, p2) (abs(p - 0.5*((p1)+(p2))) - 0.5*((p2)-(p1)))
-  #define TF_BETWEEN_PLANE(p, normal, off) AND(TF_AFTER_PLANE(p, normal, -off), TF_BEFORE_PLANE(p, normal, off))
-  #define TF_BETWEEN_ROTATE(p, ang, off) AND(TF_AFTER_ROTATE((p).xy, ang, -0.5*off), TF_BEFORE_ROTATE((p).xy, ang, 0.5*off))
-
-  #define TF_TRANSLATE(p, d) p -= d;
-  #define TF_SCALE(p, s) p /= s
-  #if 0
-    #define TF_CYL(p, R, n) p = vec2((R)*atan(p.x,p.y), TF_BALL(p.xy, R))
-  #else
-    #define TF_CYL(p, R, n) p = vec2((R)*atan(p.x,p.y), pow(length(pow(p.xy,vec2(n))), 1./float(n)) - (R))
-  #endif
-
-  #if 0
-    #define TF_ROTATE(p, a) p = mat2(cos(a), sin(a), -sin(a), cos(a)) * p
-  #else
-    #define TF_ROTATE(p, a) p = p.xy * cos (a) * vec2 (1., 1.) + p.yx * sin (a) * vec2 (-1., 1.)
-  #endif
-  #define TF_ROTATE_MAT2(a) mat2(cos(a), sin(a), -sin(a), cos(a))
-  #define TF_ROTATE_X(a) mat3(1.0,    0.0, 0.0,       0.0, cos(a), -sin(a),   0.0, sin(a), cos(a))
-  #define TF_ROTATE_Y(a) mat3(cos(a), 0.0, -sin(a),   0.0, 1.0, 0.0,   	    sin(a), 0.0, cos(a))
-  #define TF_ROTATE_Z(a) mat3(cos(a), -sin(a), 0.0,   sin(a), cos(a), 0.0,   	0.0, 0.0, 1.0)
-  #define TF_ROTATE_X_90(p) p.xyz = p.xzy
-  #define TF_ROTATE_Y_90(p) p.xyz = p.zyx
-  #define TF_ROTATE_Z_90(p) p.xyz = p.yxz
-  #define TF_MIRROR(p, d) p = abs(p) - (d)
-  #define TF_REPLICA(p, d) \
-    floor((p)/(d) + 0.5);\
-    p = mod((p) + 0.5*(d), d) - 0.5*(d)
-  #define TF_REPLICA_LIMIT(p, d, ida, idb) \
-    floor((p)/(d) + 0.5);\
-    p = p-(d)*clamp(floor((p)/(d) + 0.5), ida, idb)
-  #define TF_REPLICA_LIMIT_MIRROR(p, d, id) \
-    floor((p=p-0.5*(d))/(d) + 0.5);\
-    p = p-(d)*clamp(floor((p)/(d) + 0.5), -id, id-1.)
-
-  #define TF_REPLICA_ANGLE_POLAR(p, n, off)\
-    floor(mod(atan(p.x, p.y) + off + PI /(n), 2.*PI)/(2.*PI/(n)));\
-    p = vec2(atan(p.x, p.y) + off, length(p.xy));\
-    p.x = mod(p.x + 0.5*(2.*PI/(n)), (2.*PI/(n))) - 0.5*(2.*PI/(n))
+#else
   #if 1
-    #define TF_REPLICA_ANGLE(p, n, off) \
-      floor(mod(atan(p.x, p.y) + off + PI /(n), 2.*PI)/(2. * PI/(n)));\
-      TF_ROTATE(p.xy, -off + (2.*PI/(n)) * floor(mod(atan(p.x, p.y) + off + PI /(n), 2.*PI)/(2.*PI/(n))))
+    #define TF_SPIRAL(p, n) \
+      p.x = atan(p.x, p.y) * (n) / (2.0 * PI) - length(p.xy) - 0.5; \
+      p.x -= 1.0 * floor(p.x / 1.0 + 0.5)
   #else
-    #define TF_REPLICA_ANGLE(p, n, off) \
-      TF_REPLICA_ANGLE_POLAR(p, n, off);\
-      p = p.y * vec2(sin(p.x), cos(p.x))
+    #define TF_SPIRAL(p, n) \
+      p.xy = vec2(atan(p.x, p.y), length(p.xy)); \
+      p.x = p.x * (n) / (2.0 * PI) - p.y - 0.5; \
+      p.x -= 1.0 * floor(p.x / 1.0 + 0.5)
   #endif
-
-  #if 1
-    #define TF_HELIX_Y(p, N, R, Step, Nrot)\
-      TF_CYL(p.xz, R, 1.);\
-      {\
-        float a = floor(N)*p.x/(2.*PI*(R));\
-        TF_TRANSLATE(p.y, (Step)*a);\
-        TF_REPLICA(p.y, (Step));\
-        TF_ROTATE(p.yz, (Nrot) * PI * a);\
-      }\
-      p = p.zxy
-  #else
-    #define TF_HELIX_Y(p, N, R, Step, Nrot)\
-      TF_CYL(p.xz, R, 1.);\
-      {\
-        float a = floor(N)*p.x/(2.*PI*(R));\
-        TF_TRANSLATE(p.y, (Step)*a);\
-        float id = TF_REPLICA(p.y, (Step));\
-        p.x -= -id*(2.*PI*R)/floor(N);\
-        TF_ROTATE(p.yz, (Nrot) * PI * a);\
-      }\
-      p = p.zxy
-  #endif
-
-  #define TF_TORUS_XZ(p, R, r) \
-    TF_CYL(p.xz, R, 1.);\
-    TF_CYL(p.yz, r, 1.);\
-    p = p.xzy
-
-  #define TF_REPLICA_SPIN_Y(p, n, R, step, sect) \
-    {\
-      float a = atan(p.x, p.z)/(2.*PI);\
-      p.y -= a * (n) * (step);\
-      TF_REPLICA(p.y, step);\
-      TF_REPLICA_ANGLE(p.xz, sect, 0.);\
-      p.z -= R;\
-    }\
-    p = p.zxy;
-      
-  #define TF_REPLICA_SPIN(p1, p2, n, step) \
-    p1 -= (atan((p2).x,(p2).y)/(2. * PI))*(n)*(step);\
-    TF_REPLICA(p1, (step))
-  #define TF_REPLICA_SPIN_LIMIT(p1, p2, n, step, ida, idb) \
-    p1 -= (atan((p2).x,(p2).y)/(2. * PI))*(n)*(step);\
-    TF_REPLICA_LIMIT(p1, (step), ida, idb)
-
-  #if 1
-    #define TF_SPIRAL(p, n, k)\
-      length(p.xy);\
-      {\
-        vec2 p0 = p.xy;\
-        p.y = atan(p.x,p.y)*(n)/(2.*PI);\
-        p.x = p.y - (k) * length(p0.xy);\
-        p.x += -floor(p.x + 0.5);\
-      }
-  #else
-    #if 1
-      #define TF_SPIRAL(p, n)\
-        p.x = atan(p.x,p.y)*(n)/(2.*PI) - length(p.xy) - 0.5;\
-        p.x -= 1. * floor(p.x/1. + 0.5)
-    #else
-      #define TF_SPIRAL(p, n)\
-        p.xy = vec2(atan(p.x,p.y), length(p.xy));\
-        p.x = p.x*(n)/(2.*PI) - p.y - 0.5;\
-        p.x -= 1. * floor(p.x/1. + 0.5)
-    #endif
-  #endif
+#endif
   #if 1
     #define TF_SPIRAL_LIMIT(p, n, k, ida, idb)\
       length(p.xy);\
@@ -371,57 +374,10 @@ export const fragmentShader = `#version 300 es
     return object;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
   const int NUM_STEPS = 8;
   const float EPSILON = 1e-3;
 
-  // sea
-  const int ITER_GEOMETRY = 3;
-  const int ITER_FRAGMENT = 5;
-  const float SEA_HEIGHT = 0.6;
-  const float SEA_CHOPPY = 4.0;
-  const float SEA_SPEED = 0.8;
-  const float SEA_FREQ = 0.16;
-  const vec3 SEA_BASE = vec3(0.1,0.19,0.22);
-  const vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
-
-  mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
-
-  // Noise functions from Inigo Quilez
-  float hash( vec2 p ) {
-    float h = dot(p,vec2(127.1,311.7));	
-    return fract(sin(h)*43758.5453123);
-  }
-
-  float noise( in vec2 p ) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);	
-    vec2 u = f*f*(3.0-2.0*f);
-    return -1.0+2.0*mix(
-      mix(hash(i + vec2(0.0,0.0)), hash(i + vec2(1.0,0.0)), u.x),
-      mix(hash(i + vec2(0.0,1.0)), hash(i + vec2(1.0,1.0)), u.x), 
-      u.y
-    );
-  }
-
-  float sea_octave(vec2 uv, float choppy) {
-    uv += noise(uv);        
-    vec2 wv = 1.0-abs(sin(uv));
-    vec2 swv = abs(cos(uv));    
-    wv = mix(wv,swv,wv);
-    return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
-  }
+  
 
   float time;
 #define FAR 100.
@@ -675,7 +631,7 @@ vec4 getMaterial(Ray ray) {
 	} else if(ray.object.id==ID_GRID_SPH_LON) {
 		mCol = vec3(1,0,0);
 	} else if(ray.object.id==ID_GRID_SPH_LAT) {
-		mCol = vec3(1,0,0.5);
+		mCol = vec3(1,0,0);
 	} else if(ray.object.id==ID_GRID_TRUCHET_LINE) {
 		mCol = vec3(0.5, 0.75, 1.);
 	} else if(ray.object.id==ID_GRID_TRUCHET_MOVE) {
@@ -691,151 +647,88 @@ vec4 getMaterial(Ray ray) {
 }
 
 vec3 lighting(Ray ray, vec3 ltDir, vec4 mat) {
-	float sh = 1.0;
-	#ifdef SOFT_SHADOW
-		Ray ray1 = ray;
-		ray1.origin = ray.position;
-		ray1.direction = ltDir;
-		sh = softShadow(ray1, 240.);
-	#endif
-	float diff = clamp(dot(ray.normal,ltDir),0.,1.);
-	float spec =  pow(max(dot(ray.direction, reflect(ltDir, ray.normal)), 0.), 64.);
-	
-	return mat.rgb * (0.1 + 0.9*diff*sh) + spec*mat.a * sh;
+    float sh = 1.0;
+    #ifdef SOFT_SHADOW
+    Ray ray1 = ray;
+    ray1.origin = ray.position;
+    ray1.direction = ltDir;
+    sh = softShadow(ray1, 240.);
+    #endif
+    float diff = clamp(dot(ray.normal, ltDir), 0., 1.);
+    float spec = pow(max(dot(ray.direction, reflect(ltDir, ray.normal)), 0.), 64.);
+    return mat.rgb * (0.1 + 0.9 * diff * sh) + spec * mat.a * sh;
 }
 
 vec3 render(Ray ray) {
     vec3 col;
-	vec3 bg = SkyCol(ray.direction);
-	
-	rayMarch(ray);
-
-    if(ray.distance<FAR) {
+    vec3 bg = SkyCol(ray.direction);
+    rayMarch(ray);
+    if (ray.distance < FAR) {
         ray.normal = mapNormal(ray.position, 0.001);
-		
-		vec4 mat = getMaterial(ray);
-		
-		#if 0
-			vec3 ltPos = ray.origin + vec3(0,2.,0);
-			vec3 ltDir = normalize(ltPos-ray.position);
-			float ltDist = length(ltPos-ray.position);
-			float att = 1./pow(ltDist, 0.1);
-		#else
-        	vec3 ltDir = -ray.direction;
-			float att = 1.;
-		#endif
-		col = lighting(ray, ltDir, mat)*att;
-
-		float fogStart = 6.;
-		vec3 fogColor = bg;
-		col = mix(col, fogColor, 1.-exp(-pow(ray.distance/fogStart, 3.)));
+        vec4 mat = getMaterial(ray);
+        #if 0
+        vec3 ltPos = ray.origin + vec3(0, 2., 0);
+        vec3 ltDir = normalize(ltPos - ray.position);
+        float ltDist = length(ltPos - ray.position);
+        float att = 1. / pow(ltDist, 0.1);
+        #else
+        vec3 ltDir = -ray.direction;
+        float att = 1.;
+        #endif
+        col = lighting(ray, ltDir, mat) * att;
+        float fogStart = 6.;
+        vec3 fogColor = bg;
+        col = mix(col, fogColor, 1. - exp(-pow(ray.distance / fogStart, 3.)));
     } else {
         col = bg;
     }
-     
-    col = clamp(col,0.,1.);
+    col = clamp(col, 0., 1.);
     return col;
 }
 
-
-  void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-   
-  time = iTime + 41.;
-	
-	float aspect = iResolution.x/iResolution.y;
-	vec2 uv = gl_FragCoord.xy/iResolution.xy;
-	uv = 2.*uv - 1.;
-
-	vec2 mouse = iMouse.xy / iResolution.xy - 0.5;
-	if (iMouse.xy==vec2(0)) mouse = vec2(0);
-
-	vec2 ori = vec2(
-		iMouse.z==0. ? radians(-00.) : radians(-00.) + mouse.y*PI*2.,
-		iMouse.z==0. ? 0.0*time : 0.0*time + mouse.x*PI*2.
-	);
-
-	#if 1
-		ori.x = clamp(ori.x, -PI/2., PI/2.);
-	#else
-		ori.x = clamp(ori.x, -radians(20.), radians(20.));
-	#endif
-
-	Camera cam;
-	{
-		cam.fov     = 45.;
-		cam.aspect  = aspect;
-		cam.origin  = vec3(1.5,0.,0.1*time);
-		cam.target  = cam.origin + vec3(0,0,1);
-		cam.up 		= vec3(0,1,0);
-		cam.vMat 	= TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
-		cam.mMat	= mat3(1);
-	}
-	
-	Ray ray = lookAt(uv, cam);
-	{
-		ray.near 	= 0.01;
-		ray.far  	= FAR;
-		ray.epsilon = 0.001;
-		ray.swing	= 1.;
-		ray.steps 	= 200.;
-	}
-	vec3 ro = ray.origin;
-	vec3 rd = ray.direction;
-
-	float uv0_value = TF_TIMER(time, 5., 20., period_ID);
-	
-	vec3 col = render(ray);
-
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    time = iTime + 41.;
+    float aspect = iResolution.x / iResolution.y;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    uv = 2. * uv - 1.;
+    vec2 mouse = iMouse.xy / iResolution.xy - 0.5;
+    if (iMouse.xy == vec2(0)) mouse = vec2(0);
+    vec2 ori = vec2(
+        iMouse.z == 0. ? radians(-00.) : radians(-00.) + mouse.y * PI * 2.,
+        iMouse.z == 0. ? 0.0 * time : 0.0 * time + mouse.x * PI * 2.
+    );
+    #if 1
+    ori.x = clamp(ori.x, -PI / 2., PI / 2.);
+    #else
+    ori.x = clamp(ori.x, -radians(20.), radians(20.));
+    #endif
+    Camera cam;
+    {
+        cam.fov = 45.;
+        cam.aspect = aspect;
+        cam.origin = vec3(1.5, 0., 0.1 * time);
+        cam.target = cam.origin + vec3(0, 0, 1);
+        cam.up = vec3(0, 1, 0);
+        cam.vMat = TF_ROTATE_Y(ori.y) * TF_ROTATE_X(ori.x);
+        cam.mMat = mat3(1);
+    }
+    Ray ray = lookAt(uv, cam);
+    {
+        ray.near = 0.01;
+        ray.far = FAR;
+        ray.epsilon = 0.001;
+        ray.swing = 1.;
+        ray.steps = 200.;
+    }
+    vec3 ro = ray.origin;
+    vec3 rd = ray.direction;
+    float uv0_value = TF_TIMER(time, 5., 20., period_ID);
+    vec3 col = render(ray);
     col = pow(col, vec3(.4545));
-	
-	TF_TIMER_VIEW(col, 5., uv0_value);
-	
-    fragColor = vec4(col,1.0);
-  
+    TF_TIMER_VIEW(col, 5., uv0_value);
+    fragColor = vec4(col, 1.0);
+}
 
-
-
-
-  
-  /*  vec2 uv = fragCoord.xy / iResolution.xy;
-    uv = uv * 2.0 - 1.0;
-    uv.x *= iResolution.x/iResolution.y;    
-    float time = iTime * 0.3;
-        
-    // ray
-    vec3 ang = vec3(sin(time*3.0)*0.1,sin(time)*0.2+0.3,time);    
-    vec3 ori = vec3(0.0,3.5,time*5.0);
-    vec3 dir = normalize(vec3(uv.xy,-2.0)); 
-    dir.z += length(uv) * 0.15;
-    dir = normalize(dir);
-    
-    // tracing
-    vec3 p;
-    float tm = 0.0;
-    float tx = 0.0;    
-    if (dir.y > 0.0) {
-      p = vec3(0.0);
-    }
-    else {
-      float hm = map(ori + dir * tm);    
-      p = ori + dir * tm;
-    }
-    
-    // color
-    vec3 col = mix(
-      SEA_BASE,
-      SEA_WATER_COLOR,
-      clamp(length(p.xz)/100.0,0.0,1.0)
-    );    
-    
-    // post
-    fragColor = vec4(pow(col,vec3(0.75)), 1.0);
-
- */
-
-  }
-
-  void main() {
+void main() {
     mainImage(fragColor, gl_FragCoord.xy);
-  }
-`; 
+}`;
