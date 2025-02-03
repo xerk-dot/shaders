@@ -19,6 +19,11 @@ export const fragmentShader = `#version 300 es
   #define TTIME            (TAU*TIME)
   #define RESOLUTION        iResolution
   #define ROT(a)           mat2(cos(a), sin(a), -sin(a), cos(a))
+  #define MAX_DEPTH 10
+
+  float noise2(vec2 p) {
+    return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 456367.5453);
+  }
 
   // Background utility functions
   float sRGB(float t) { return mix(1.055*pow(t, 1./2.4) - 0.055, 12.92*t, step(t, 0.0031308)); }
@@ -289,32 +294,43 @@ export const fragmentShader = `#version 300 es
   }
 
   void main() {
-    vec2 q = gl_FragCoord.xy/iResolution.xy;
-    vec2 p = -1.0 + 2.0*q;
-    p.x *= RESOLUTION.x/RESOLUTION.y;
+    vec2 q = gl_FragCoord.xy / iResolution.xy;
+    vec2 p = -1.0 + 2.0 * q;
+    p.x *= RESOLUTION.x / RESOLUTION.y;
 
     // Setup camera and scene for background
     vec3 ro = vec3(0.0, 0.0, 0.0);
-    vec3 lp = 500.0*vec3(1.0, -0.25, 0.0);
-    vec4 md = 50.0*vec4(vec3(1.0, 1., -0.6), 0.5);
+    vec3 lp = 500.0 * vec3(1.0, -0.25, 0.0);
+    vec4 md = 50.0 * vec4(vec3(1.0, 1.0, -0.6), 0.5);
     vec3 la = vec3(1.0, 0.5, 0.0);
     vec3 up = vec3(0.0, 1.0, 0.0);
-    la.xz *= ROT(TTIME/60.0-PI/2.0);
+    la.xz *= ROT(TTIME / 60.0 - PI / 2.0);
     
     vec3 ww = normalize(la - ro);
     vec3 uu = normalize(cross(up, ww));
-    vec3 vv = normalize(cross(ww,uu));
-    vec3 rd = normalize(p.x*uu + p.y*vv + 2.0*ww);
+    vec3 vv = normalize(cross(ww, uu));
+    vec3 rd = normalize(p.x * uu + p.y * vv + 2.0 * ww);
     
     // Render background
     vec3 backgroundColor = renderBackground(ro, rd, lp, md);
-    backgroundColor *= smoothstep(0.0, 4.0, TIME)*smoothstep(30.0, 26.0, TIME);
+    backgroundColor *= smoothstep(0.0, 4.0, TIME) * smoothstep(30.0, 26.0, TIME);
     backgroundColor = aces_approx(backgroundColor);
     backgroundColor = sRGB(backgroundColor);
     
+	  vec2 p1 = (gl_FragCoord.xy / iResolution.xy)*10.;
+
+    float col = 10.0;
+    for (int i = 1; i < MAX_DEPTH; i++) {
+        float depth = float(i);
+		    float step = floor(100. * p.x / depth + 50. * depth + iTime);
+        if (p1.y < noise2(vec2(step)) - depth * 0.05) {
+            col = depth / 10.0; //strength of color
+        }
+    }
+    
     vec2 r = iResolution.xy;
     vec2 I = gl_FragCoord.xy;
-    vec2 circuitP = (I+I-r) / r.y * mat2(4.0,-3.0,3.0,4.0);
+    vec2 circuitP = (I + I - r) / r.y * mat2(4.0, -3.0, 3.0, 4.0);
     
     float t = iTime;
     float T = t + 0.1 * circuitP.x;
@@ -322,19 +338,34 @@ export const fragmentShader = `#version 300 es
     
     vec4 O = vec4(0.0);
     
-    for(i = 0.0; i < 50.0; i += 1.0) {
-        vec4 particleColor = (cos(sin(i)*vec4(1.0,2.0,3.0,0.0))+1.0);
-        float brightness = exp(sin(i+0.1*i*T));
-        float noise = texture(iChannel0, circuitP/exp(sin(i)+5.0)+vec2(t,i)/8.0).r;
-        vec2 scaledP = circuitP / vec2(noise*40.0,2.0);
+    for (i = 0.0; i < 50.0; i += 1.0) {
+        // Calculate fade factor based on position
+        float fadeFactor = smoothstep(0.1, 0.2, gl_FragCoord.y / iResolution.y);
+        
+        vec4 particleColor = (cos(sin(i) * vec4(1.0, 2.0, 3.0, 0.0)) + 1.0);
+        float brightness = exp(sin(i + 0.1 * i * T)) * fadeFactor; // Apply fade factor
+        float noise = texture(iChannel0, circuitP / exp(sin(i) + 5.0) + vec2(t, i) / 8.0).r;
+        vec2 scaledP = circuitP / vec2(noise * 40.0, 2.0);
         float attenuation = 1.0 / length(max(circuitP, scaledP));
-        circuitP += 2.0*cos(i*vec2(11.0,9.0)+i*i+T*0.2);
+        circuitP += 2.0 * cos(i * vec2(11.0, 9.0) + i * i + T * 0.2);
         O += particleColor * brightness * attenuation;
     }
     
-    O = tanh(0.01*circuitP.y*vec4(0.0,1.0,2.0,3.0)+O*O/1e4);
+    O = tanh(0.01 * circuitP.y * vec4(0.0, 1.0, 2.0, 3.0) + O * O / 1e4);
     
+    // Blend in the city
+    vec4 cityColor = col >= 1.0 ? vec4(0.2, 0.2, 0.2, 0.0) : vec4(vec3(1.0) * col, 1.0); // Keep original building color
+
     // Blend the orange circuits with the background
-    fragColor = vec4(mix(backgroundColor, O.rgb, O.a), 1.0);
+    vec4 circuitColor = vec4(mix(backgroundColor, O.rgb, O.a), 1.0);
+
+    // Create a step function to blend the city at the bottom 20% of the image
+    float cityBlendFactor = step(1.0, gl_FragCoord.y / iResolution.y); // City appears in the bottom 20%
+
+    // First, blend the city with the background at the bottom
+    vec4 cityBackgroundBlend = mix(cityColor, vec4(backgroundColor, 1.0), cityBlendFactor);
+
+    // Then, blend the orange circuits on top of the city-background blend
+    fragColor = mix(cityBackgroundBlend, circuitColor, 0.5); // Adjust blend factor as needed
   }
 `; 
