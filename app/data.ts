@@ -47,7 +47,7 @@ export const shaderData = [
     id: 'orange-circuits',
     name: "Tomorrow's Parties",
     icon: '🎉', // Added icon
-    description: 'Orange Circuits Scatter Wisdom Across the Acropolis and into your Mind.',
+    description: 'Orange Circuits Scatter Wisdom From Persepolis',
     sourceUrl: '',
     code: orangeCircuitsFragment,
     category: 'geometry'

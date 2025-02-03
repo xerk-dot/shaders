@@ -340,7 +340,7 @@ export const fragmentShader = `#version 300 es
     
     for (i = 0.0; i < 50.0; i += 1.0) {
         // Calculate fade factor based on position
-        float fadeFactor = smoothstep(0.1, 0.2, gl_FragCoord.y / iResolution.y);
+        float fadeFactor = smoothstep(0.05, 0.2, gl_FragCoord.y / iResolution.y);
         
         vec4 particleColor = (cos(sin(i) * vec4(1.0, 2.0, 3.0, 0.0)) + 1.0);
         float brightness = exp(sin(i + 0.1 * i * T)) * fadeFactor; // Apply fade factor
