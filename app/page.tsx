@@ -184,9 +184,8 @@ export default function Page(props) {
       <Hero word="(look at my)" />
       <SuperimposedHero />
 
-       <Card title="search" mode="left" maxWidth="85vw" centered>
+        {/* <Card title="search" mode="left" maxWidth="85vw" centered>
         <div className="relative z-10 flex flex-col gap-10 my-20 max-w-[1200px] px-5 md:px-10 w-full mx-auto">
-          {/* Category Filter */}
           {categories.map(category => (
             <div key={category.id}>
               <Checkbox
@@ -197,10 +196,9 @@ export default function Page(props) {
                 {category.name}
               </Checkbox>
             </div>
-          ))}
+          ))} 
           
 
-          {/* Shaders Grid */}
           <div className="flex flex-col gap-10">
             {filteredShaders.map((shader) => (
               <div key={shader.id}>
@@ -217,7 +215,7 @@ export default function Page(props) {
             ))}
           </div>
         </div>
-       </Card>
+       </Card> */}
 
       </Grid>
    
