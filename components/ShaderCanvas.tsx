@@ -8,6 +8,9 @@ import { vertexShader as sephoraBdsmVertex, fragmentShader as sephoraBdsmFragmen
 import { vertexShader as orangeCircuitsVertex, fragmentShader as orangeCircuitsFragment } from '../app/shaders/orange-circuits';
 import { vertexShader as barryBensonVertex, fragmentShader as barryBensonFragment } from '../app/shaders/barry-b-benson';
 import { vertexShader as xhamsterVertex, fragmentShader as xhamsterFragment } from '../app/shaders/x';
+import { vertexShader as pipesVertex, fragmentShader as pipesFragment } from '../app/shaders/pipes';
+import { vertexShader as beatsaberVertex, fragmentShader as beatsaberFragment } from '../app/shaders/beatsaber';
+import { vertexShader as bachVertex, fragmentShader as bachFragment } from '../app/shaders/bach';
 interface ShaderCanvasProps {
   shaderId: string;
   width: number | string;  // Can now be number (pixels) or string (e.g., '100vw')
@@ -43,6 +46,18 @@ const shaders = {
   'xhamster': {
   vertex: xhamsterVertex,
   fragment: xhamsterFragment
+  },
+  'pipes': {
+    vertex: pipesVertex,
+    fragment: pipesFragment
+  },
+  'beatsaber': {
+    vertex: beatsaberVertex,
+    fragment: beatsaberFragment
+  },
+  'bach': {
+    vertex: bachVertex,
+    fragment: bachFragment
   }
 };
 
@@ -181,27 +196,28 @@ export default function ShaderCanvas({ shaderId, width, height, fadeBottom = fal
     const iChannel0Location = gl.getUniformLocation(program, 'iChannel0');
     gl.uniform1i(iChannel0Location, 0);  // Use texture unit 0
 
-    // Load texture
-    const textureImage = new Image();
-    textureImage.src = ''//app/pack.png'; // Make sure this path is correct
-    textureImage.onload = () => {
-      // Activate texture unit 1 before binding
-      gl.activeTexture(gl.TEXTURE1);
+    // Load texture for iChannel1
+    const imageTexture = new Image();
+    imageTexture.src = '/images/download.png'; // Replace with your image path
+    imageTexture.onload = () => {
+      // Create a texture
       const texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);
-      
+
       // Set texture parameters
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      
-      // Upload texture to GPU
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage);
-      
-      // Set up uniform
-      const textureLocation = gl.getUniformLocation(program, 'iBlockTexture');
-      gl.uniform1i(textureLocation, 1); // Use texture unit 1
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+      // Upload the image to the GPU
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageTexture);
+      gl.generateMipmap(gl.TEXTURE_2D);
+
+      // Set the uniform for the texture and ensure it's bound to the correct texture unit
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.uniform1i(iChannel0Location, 0); // Use texture unit 0
     };
 
     // Animation frame

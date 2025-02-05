@@ -27,7 +27,7 @@ export default function AboutPage() {
             style={{ width: '100%', height: 'auto', marginBottom: '1rem' }}
             priority
           />
-          <p>hi! i'm a pixel-wrangler and code-tinkerer obsessed with shaders. glsl? wgsl? webgpu? yeah, i speak those languages (badly). this site is my chaotic playground— just me attempting to use math that somehow makes pretty things.</p>
+          <p>hi! i'm a pixel-wrangler and code-tinkerer obsessed with shaders. here you'll find: glsl, wgsl, webgpu, antialiasing, raymarching, depth buffers, etc... this site is my chaotic playground— just me attempting to use math that somehow makes pretty things.</p>
           <br />
 
           <div style={{ textAlign: 'left' }}>

@@ -5,7 +5,9 @@ import { fragmentShader as sephoraBdsmFragment } from './shaders/sephora-bdsm';
 import { fragmentShader as orangeCircuitsFragment } from './shaders/orange-circuits';
 import { fragmentShader as barryBensonFragment } from './shaders/barry-b-benson';
 import { fragmentShader as xhamsterFragment } from './shaders/x';
-
+import { fragmentShader as pipesFragment } from './shaders/pipes';
+import { fragmentShader as beatsaberFragment } from './shaders/beatsaber';
+import { fragmentShader as bachFragment } from './shaders/bach';
 export const shaderData = [
   {
     id: 'seascape',
@@ -68,6 +70,33 @@ export const shaderData = [
     description: '(formerly known as twitter)',
     sourceUrl: '',
     code: xhamsterFragment,
+    category: 'geometry'
+  },
+  {
+    id: 'pipes',
+    name: 'Pipes',
+    icon: '🌈',
+    description: 'Pipes',
+    sourceUrl: '',
+    code: pipesFragment,
+    category: 'geometry'
+  },
+  {
+    id: 'beatsaber',
+    name: 'Beatsaber',
+    icon: '🎧',
+    description: 'deconstructed',
+    sourceUrl: '',
+    code: beatsaberFragment,
+    category: 'geometry'
+  },
+  {
+    id: 'bach',
+    name: 'Bach',
+    icon: '🌃',
+    description: 'under a tree in eisenach, germany',
+    sourceUrl: '',
+    code: bachFragment,
     category: 'geometry'
   }
 ]; 
