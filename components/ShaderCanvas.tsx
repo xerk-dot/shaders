@@ -19,6 +19,10 @@ interface ShaderCanvasProps {
 }
 
 const shaders = {
+  'xhamster': {
+    vertex: xhamsterVertex,
+    fragment: xhamsterFragment
+    },
   'seascape': {
     vertex: seascapeVertex,
     fragment: seascapeFragment
@@ -43,10 +47,7 @@ const shaders = {
     vertex: barryBensonVertex,
     fragment: barryBensonFragment
   },
-  'xhamster': {
-  vertex: xhamsterVertex,
-  fragment: xhamsterFragment
-  },
+
   'pipes': {
     vertex: pipesVertex,
     fragment: pipesFragment

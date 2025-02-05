@@ -170,13 +170,13 @@ export default function Page(props) {
     width: '100%',
     height: '100vh',
     zIndex: -1,
-    opacity: .6
+    opacity: .9
   }}>
     <ShaderCanvas 
-      shaderId="xhamster"
+      shaderId="beatsaber"
       width="100vw"
       height="100vh"
-      fadeBottom={true}
+      fadeBottom={false}
     />
   </div>
 )}

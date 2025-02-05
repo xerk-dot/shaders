@@ -27,28 +27,28 @@ export default function AboutPage() {
             style={{ width: '100%', height: 'auto', marginBottom: '1rem' }}
             priority
           />
-          <p>hi! i'm a pixel-wrangler and code-tinkerer obsessed with shaders. here you'll find: glsl, wgsl, webgpu, antialiasing, raymarching, depth buffers, etc... this site is my chaotic playground— just me attempting to use math that somehow makes pretty things.</p>
+          <p>hi. im a pixel-wrangler and code-tinkerer. these graphics are made with: glsl, wgsl, hlsl, webgpu, antialiasing, raymarching, depth buffers, etc... this garden is a chaotic playground where I use math to (somehow) make pretty things.</p>
           <br />
 
           <div style={{ textAlign: 'left' }}>
             <p>i am: 10% intention, 90% "what if i tweak this number?"</p>
             
             <br />
-            <p style={{ fontStyle: 'italic' }}>spoiler: it either becomes a rainbow tornado or the FPS goes down. no regrets.</p>
+            <p style={{ fontStyle: 'italic' }}>spoiler: it either becomes a rainbow or the FPS goes down. no regrets.</p>
           <br />
           </div>
           <p>some days i'm all "let's simulate fluid dynamics!" other days it's "why does this cube look like a potato?" either way, you'll find the carnage documented here.</p>
           <br />
-          <p>i'm not here to gatekeep. code's included in every post—steal it, break it, make it weirder. if you spot a typo that accidentally made something cool, please tell me. we're all bugs in the matrix.</p>
+          <p>i'm not here to gatekeep. code's included in every post—steal it, break it, make it weirder. if you spot a typo that accidentally made something cool, please tell me.</p>
           <br />
           <p>my creative process: 1. watch a tutorial, 2. forget half of it, 3. brute-force the rest with caffeine.</p>
           <br />
           <p>this isn't a tutorial hub—i'm the lab rat, not the professor. but if my spaghetti code helps you crack a problem, that's a win. let's normalize celebrating "it works but i don't know why" moments.</p>
           <br />
-          <p>big thanks to the webgpu/dev community for keeping the chaos alive. y'all are the real mvps. also, sorry to my gpu. i promise i'll stop setting you on fire someday. maybe.</p>
+          <p>also, sorry to my gpu. i promise i'll stop setting you on fire someday. maybe.</p>
         </Card>
 
-        <Card title="q: what do u think id want u to tell me?" maxWidth="100%" centered>
+        <Card title="q: what will you     tell me?" maxWidth="100%" centered>
           <RadioButtonGroup
             defaultValue="none"
             options={[

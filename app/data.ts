@@ -10,6 +10,16 @@ import { fragmentShader as beatsaberFragment } from './shaders/beatsaber';
 import { fragmentShader as bachFragment } from './shaders/bach';
 export const shaderData = [
   {
+    
+      id: 'xhamster',
+      name: 'hamster',
+      icon: '🐹', 
+      description: '(formerly known as twitter)',
+      sourceUrl: '',
+      code: xhamsterFragment,
+      category: 'geometry'
+    },
+    {
     id: 'seascape',
     name: 'Seascape',
     icon: '🌊', // Added icon
@@ -63,15 +73,7 @@ export const shaderData = [
     code: barryBensonFragment,
     category: 'geometry'
   },
-  {
-    id: 'xhamster',
-    name: 'hamster',
-    icon: '🐹', 
-    description: '(formerly known as twitter)',
-    sourceUrl: '',
-    code: xhamsterFragment,
-    category: 'geometry'
-  },
+
   {
     id: 'pipes',
     name: 'Pipes',
