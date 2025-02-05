@@ -79,7 +79,7 @@ export default function AboutPage() {
                             style={{ width: '50%', height: 'auto', marginBottom: '1rem' }}
                             priority
                           />
-                <span style={{ backgroundColor: 'white', color: 'red', fontWeight: 'bold' }}>INCORRECT:</span> i just finished that self-help audiobook where a disinterested AI narrates your life as a protagonist. Chapter 1: "why bother?"'</>
+                <span style={{ backgroundColor: 'white', color: 'red', fontWeight: 'bold' }}>INCORRECT:</span> i just finished that self-help audiobook where a disinterested AI narrates your life as a protagonist. Chapter 1: "why bother?"</>
               },
               {
                 value: 'c', 
