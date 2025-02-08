@@ -173,7 +173,7 @@ export default function Page(props) {
     opacity: .9
   }}>
     <ShaderCanvas 
-      shaderId="beatsaber"
+      shaderId="bach"
       width="100vw"
       height="100vh"
       fadeBottom={false}
