@@ -8,12 +8,30 @@ import { useState } from 'react';
 import Image from 'next/image';
 import styles from './page.module.scss';
 import '@root/global.scss';
-
+import ShaderCanvas from '@components/ShaderCanvas';
 export default function AboutPage() {
   const [feedback, setFeedback] = useState<string>('');
 
   return (
     <>
+    {(
+  <div className="shaderContainer" style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100vh',
+    zIndex: -1,
+    opacity: .3
+  }}>
+    <ShaderCanvas 
+      shaderId="bach"
+      width="100vw"
+      height="100vh"
+      fadeBottom={false}
+    />
+  </div>
+)}
       <div style={{ marginTop: '5vh' }}>
         <Hero word="(about me)" />
       </div>
