@@ -11,6 +11,7 @@ import { vertexShader as xhamsterVertex, fragmentShader as xhamsterFragment } fr
 import { vertexShader as pipesVertex, fragmentShader as pipesFragment } from '../app/shaders/pipes';
 import { vertexShader as beatsaberVertex, fragmentShader as beatsaberFragment } from '../app/shaders/beatsaber';
 import { vertexShader as bachVertex, fragmentShader as bachFragment } from '../app/shaders/bach';
+import { vertexShader as magnifiedGridVertex, fragmentShader as magnifiedGridFragment } from '../app/shaders/magnified-grid';
 interface ShaderCanvasProps {
   shaderId: string;
   width: number | string;  // Can now be number (pixels) or string (e.g., '100vw')
@@ -59,6 +60,10 @@ const shaders = {
   'bach': {
     vertex: bachVertex,
     fragment: bachFragment
+  },
+  'magnified-grid': {
+    vertex: magnifiedGridVertex,
+    fragment: magnifiedGridFragment
   }
 };
 

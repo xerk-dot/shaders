@@ -181,7 +181,7 @@ export default function Page(props) {
   </div>
 )}
       <Grid>
-      <Hero word="(look at my)" />
+      <Hero word="(look at my)" isHalfHeight={true} />
       <SuperimposedHero />
 
         {/* <Card title="search" mode="left" maxWidth="85vw" centered>

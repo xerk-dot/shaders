@@ -8,6 +8,7 @@ import { fragmentShader as xhamsterFragment } from './shaders/x';
 import { fragmentShader as pipesFragment } from './shaders/pipes';
 import { fragmentShader as beatsaberFragment } from './shaders/beatsaber';
 import { fragmentShader as bachFragment } from './shaders/bach';
+import { fragmentShader as magnifiedGridFragment } from './shaders/magnified-grid';
 export const shaderData = [
   {
     
@@ -99,6 +100,15 @@ export const shaderData = [
     description: 'under a tree in eisenach, germany',
     sourceUrl: '',
     code: bachFragment,
+    category: 'geometry'
+  },
+  {
+    id: 'magnified-grid',
+    name: 'Magnified Grid',
+    icon: '🌉',
+    description: 'magnified grid',
+    sourceUrl: '',
+    code: magnifiedGridFragment,
     category: 'geometry'
   }
 ]; 
