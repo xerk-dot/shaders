@@ -16,27 +16,38 @@ uniform float iTime;      // Time variable
 uniform vec2 iMouse;      // Mouse coordinates
 out vec4 fragColor;      // Output color
 
-// Simple noise function for float input
+// Hash function for random values
+float hash(float n) {
+    return fract(sin(n) * 43758.5453123);
+}
+
+// One-dimensional noise function
 float noise(float x) {
-    return fract(sin(x * 12.9898) * 43758.5453);
+    return hash(x);
 }
 
-// Simple noise function for vec2 input
+// Two-dimensional noise function
 float noise(vec2 p) {
-    return fract(sin(dot(p.xy, vec2(12.9898, 78.233))) * 43758.5453);
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    float a = hash(i.x + i.y * 57.0);
+    float b = hash(i.x + 1.0 + (i.y * 57.0));
+    float c = hash(i.x + (i.y + 1.0) * 57.0);
+    float d = hash(i.x + 1.0 + (i.y + 1.0) * 57.0);
+    
+    // Smooth interpolation
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
 
-// Function a(x, y) implementation
-vec2 a(float x, float y) {
-    // Calculate noise-based offsets
-    float k = x - 400.0 * noise(iTime); // Offset in x direction
-    float e = y - 400.0 * noise(vec2(iTime, 9.0)); // Offset in y direction
-
-    // Calculate distance based on noise
-    float d = exp(length(vec2(k, e)) / 20.0 - 3.0 * noise(vec2(floor(x / 19.0), floor(y / 19.0))));
-
-    // Return new coordinates adjusted by the calculated offsets and distance
-    return vec2(x + k / d, y + e / d);
+vec2 a(float x, float y, float squareSize) {
+/*     if (mod(iTime, 0.005) < 0.0025) { // Frequent changes
+        float k = x - squareSize * noise(iTime);
+        float e = y - squareSize * noise(vec2(iTime, 9.0));
+        float d = exp(length(vec2(k, e)) / 8.0 - 3.0 * noise(vec2(floor(x / 19.0), floor(y / 19.0))));
+        return vec2(x + k / d, y + e / d);
+    } */
+    return vec2(x, y);
 }
 
 // Function to calculate distance from a point to a line segment
@@ -59,37 +70,40 @@ vec2[3] defineTriangleVertices(vec2 squarePos, float offsetX, float offsetY, flo
 
 // Helper function to check if a fragment is inside a triangle and set the color
 void checkTriangleColor(vec2 fragCoord, vec2 vertices[3]) {
-    // Check if the current fragment is inside the triangle
     float area = 0.5 * (-vertices[1].y * vertices[2].x + vertices[0].y * (-vertices[1].x + vertices[2].x) + vertices[0].x * (vertices[1].y - vertices[2].y) + vertices[1].x * vertices[2].y);
+    
+    if (area == 0.0) return; // Early exit for degenerate triangles
+
     float s = 1.0 / (2.0 * area) * (vertices[0].y * vertices[2].x - vertices[0].x * vertices[2].y + (vertices[2].y - vertices[0].y) * fragCoord.x + (vertices[0].x - vertices[2].x) * fragCoord.y);
     float t = 1.0 / (2.0 * area) * (vertices[0].x * vertices[1].y - vertices[0].y * vertices[1].x + (vertices[1].y - vertices[0].y) * fragCoord.x + (vertices[1].x - vertices[0].x) * fragCoord.y);
 
     // If inside triangle, set color
     if (s >= 0.0 && t >= 0.0 && (s + t) <= 1.0) {
-        fragColor = vec4(1.0, 1.0, 1.0, 1.0); // Green fill for triangle
+        fragColor = vec4(1.0, 1.0, 1.0, 1.0); // White fill
         
-        // Draw triangle border with a thicker border
-        float borderThickness = 3.0; // Adjust thickness as needed
+        // Draw triangle border with a thinner border
+        float borderThickness = 1.0; // Adjust thickness as needed
         if (distanceToTriangleEdge(fragCoord, vertices[0], vertices[1]) < borderThickness || 
             distanceToTriangleEdge(fragCoord, vertices[1], vertices[2]) < borderThickness || 
             distanceToTriangleEdge(fragCoord, vertices[2], vertices[0]) < borderThickness) {
-            fragColor = vec4(0.0, 0.0, 0.0, 1.0); // Red border
+            fragColor = vec4(0.0, 0.0, 0.0, 1.0); // Black border
         }
     }
 }
 
 void drawTriangles(vec2 squarePos, float squareSize, int numTrianglesPerSide) {
-    for (int i = 0; i < numTrianglesPerSide; i++) { // Loop for rows
-        for (int j = 0; j < numTrianglesPerSide; j++) { // Loop for columns
-            // Calculate the position for the current triangle
-            float offsetX = float(j) * (squareSize / float(numTrianglesPerSide)); // X offset for columns
-            float offsetY = float(i) * (squareSize / float(numTrianglesPerSide)); // Y offset for rows
+    float triangleSize = squareSize / float(numTrianglesPerSide);
+    for (int i = 0; i < numTrianglesPerSide; i++) {
+        for (int j = 0; j < numTrianglesPerSide; j++) {
+            float offsetX = float(j) * triangleSize;
+            float offsetY = float(i) * triangleSize;
+            vec2 vertices[3] = defineTriangleVertices(squarePos, offsetX, offsetY, triangleSize); 
+            vec2 newCoords[3];
+            for (int k = 0; k < 3; k++) {
+                newCoords[k] = a(vertices[k].x, vertices[k].y, squareSize);
+            }
+            checkTriangleColor(gl_FragCoord.xy, newCoords);
 
-            // Define triangle vertices for the current position using the helper function
-            vec2 vertices[3] = defineTriangleVertices(squarePos, offsetX, offsetY, squareSize / float(numTrianglesPerSide));
-
-            // Check if the fragment is inside the triangle and set the color
-            checkTriangleColor(gl_FragCoord.xy, vertices);
         }
     }
 }
@@ -117,8 +131,11 @@ void main() {
 }
 
 
-`;
 
+
+
+
+`;
 
 /***
  * 
