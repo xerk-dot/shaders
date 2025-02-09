@@ -48,6 +48,52 @@ float distanceToTriangleEdge(vec2 p, vec2 a, vec2 b) {
     return length(p - closestPoint);
 }
 
+// Helper function to define triangle vertices
+vec2[3] defineTriangleVertices(vec2 squarePos, float offsetX, float offsetY, float triangleSize) {
+    vec2 vertices[3]; // Array to hold vertices for a single triangle
+    vertices[0] = squarePos + vec2(offsetX, offsetY); // Lower-left corner
+    vertices[1] = squarePos + vec2(offsetX + triangleSize, offsetY); // Lower-right corner
+    vertices[2] = squarePos + vec2(offsetX, offsetY + triangleSize); // Upper-left corner
+    return vertices;
+}
+
+// Helper function to check if a fragment is inside a triangle and set the color
+void checkTriangleColor(vec2 fragCoord, vec2 vertices[3]) {
+    // Check if the current fragment is inside the triangle
+    float area = 0.5 * (-vertices[1].y * vertices[2].x + vertices[0].y * (-vertices[1].x + vertices[2].x) + vertices[0].x * (vertices[1].y - vertices[2].y) + vertices[1].x * vertices[2].y);
+    float s = 1.0 / (2.0 * area) * (vertices[0].y * vertices[2].x - vertices[0].x * vertices[2].y + (vertices[2].y - vertices[0].y) * fragCoord.x + (vertices[0].x - vertices[2].x) * fragCoord.y);
+    float t = 1.0 / (2.0 * area) * (vertices[0].x * vertices[1].y - vertices[0].y * vertices[1].x + (vertices[1].y - vertices[0].y) * fragCoord.x + (vertices[1].x - vertices[0].x) * fragCoord.y);
+
+    // If inside triangle, set color
+    if (s >= 0.0 && t >= 0.0 && (s + t) <= 1.0) {
+        fragColor = vec4(1.0, 1.0, 1.0, 1.0); // Green fill for triangle
+        
+        // Draw triangle border with a thicker border
+        float borderThickness = 3.0; // Adjust thickness as needed
+        if (distanceToTriangleEdge(fragCoord, vertices[0], vertices[1]) < borderThickness || 
+            distanceToTriangleEdge(fragCoord, vertices[1], vertices[2]) < borderThickness || 
+            distanceToTriangleEdge(fragCoord, vertices[2], vertices[0]) < borderThickness) {
+            fragColor = vec4(0.0, 0.0, 0.0, 1.0); // Red border
+        }
+    }
+}
+
+void drawTriangles(vec2 squarePos, float squareSize, int numTrianglesPerSide) {
+    for (int i = 0; i < numTrianglesPerSide; i++) { // Loop for rows
+        for (int j = 0; j < numTrianglesPerSide; j++) { // Loop for columns
+            // Calculate the position for the current triangle
+            float offsetX = float(j) * (squareSize / float(numTrianglesPerSide)); // X offset for columns
+            float offsetY = float(i) * (squareSize / float(numTrianglesPerSide)); // Y offset for rows
+
+            // Define triangle vertices for the current position using the helper function
+            vec2 vertices[3] = defineTriangleVertices(squarePos, offsetX, offsetY, squareSize / float(numTrianglesPerSide));
+
+            // Check if the fragment is inside the triangle and set the color
+            checkTriangleColor(gl_FragCoord.xy, vertices);
+        }
+    }
+}
+
 void main() {
     // Number of triangles per side (adjust this variable to change the grid size)
     int numTrianglesPerSide = 50; // Change this value for nxn triangles
@@ -60,48 +106,20 @@ void main() {
     fragColor = vec4(1.0, 1.0, 1.0, 1.0); // White fill
 
     // Draw the border of the square
-    if ((gl_FragCoord.x < squarePos.x + 1.0 || gl_FragCoord.x > squarePos.x + squareSize - 1.0 ||
+/*  if ((gl_FragCoord.x < squarePos.x + 1.0 || gl_FragCoord.x > squarePos.x + squareSize - 1.0 ||
          gl_FragCoord.y < squarePos.y + 1.0 || gl_FragCoord.y > squarePos.y + squareSize - 1.0) &&
         (gl_FragCoord.x >= squarePos.x && gl_FragCoord.x <= squarePos.x + squareSize &&
          gl_FragCoord.y >= squarePos.y && gl_FragCoord.y <= squarePos.y + squareSize)) {
         fragColor = vec4(0.0, 0.0, 1.0, 1.0); // Blue border
-    }
+    } */
 
-    // Define triangle vertices for each position in a grid
-    vec2 vertices[3]; // Array to hold vertices for a single triangle
-    for (int i = 0; i < numTrianglesPerSide; i++) { // Loop for rows
-        for (int j = 0; j < numTrianglesPerSide; j++) { // Loop for columns
-            // Calculate the position for the current triangle
-            float offsetX = float(j) * (squareSize / float(numTrianglesPerSide)); // X offset for columns
-            float offsetY = float(i) * (squareSize / float(numTrianglesPerSide)); // Y offset for rows
-
-            // Define triangle vertices for the current position
-            vertices[0] = squarePos + vec2(offsetX, offsetY); // Lower-left corner
-            vertices[1] = squarePos + vec2(offsetX + (squareSize / float(numTrianglesPerSide)), offsetY); // Lower-right corner
-            vertices[2] = squarePos + vec2(offsetX, offsetY + (squareSize / float(numTrianglesPerSide))); // Upper-left corner
-
-            // Check if the current fragment is inside the triangle
-            float area = 0.5 * (-vertices[1].y * vertices[2].x + vertices[0].y * (-vertices[1].x + vertices[2].x) + vertices[0].x * (vertices[1].y - vertices[2].y) + vertices[1].x * vertices[2].y);
-            float s = 1.0 / (2.0 * area) * (vertices[0].y * vertices[2].x - vertices[0].x * vertices[2].y + (vertices[2].y - vertices[0].y) * gl_FragCoord.x + (vertices[0].x - vertices[2].x) * gl_FragCoord.y);
-            float t = 1.0 / (2.0 * area) * (vertices[0].x * vertices[1].y - vertices[0].y * vertices[1].x + (vertices[1].y - vertices[0].y) * gl_FragCoord.x + (vertices[1].x - vertices[0].x) * gl_FragCoord.y);
-
-            // If inside triangle, set color
-            if (s >= 0.0 && t >= 0.0 && (s + t) <= 1.0) {
-                fragColor = vec4(0.0, 1.0, 0.0, 1.0); // Green fill for triangle
-                
-                // Draw triangle border with a thicker border
-                float borderThickness = 3.0; // Adjust thickness as needed
-                if (distanceToTriangleEdge(gl_FragCoord.xy, vertices[0], vertices[1]) < borderThickness || 
-                    distanceToTriangleEdge(gl_FragCoord.xy, vertices[1], vertices[2]) < borderThickness || 
-                    distanceToTriangleEdge(gl_FragCoord.xy, vertices[2], vertices[0]) < borderThickness) {
-                    fragColor = vec4(1.0, 0.0, 0.0, 1.0); // Red border
-                }
-                break; // Exit loop if a triangle is filled
-            }
-        }
-    }
+    drawTriangles(squarePos, squareSize, numTrianglesPerSide);
 }
+
+
 `;
+
+
 /***
  * 
 function a(x, y) {
