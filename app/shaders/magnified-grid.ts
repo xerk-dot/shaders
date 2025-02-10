@@ -16,6 +16,7 @@ uniform float iTime;      // Time variable
 uniform vec2 iMouse;      // Mouse coordinates
 out vec4 fragColor;      // Output color
 
+
 // Hash function for random values
 float hash(float n) {
     return fract(sin(n) * 43758.5453123);
@@ -41,12 +42,12 @@ float noise(vec2 p) {
 }
 
 vec2 a(float x, float y, float squareSize) {
-/*     if (mod(iTime, 0.005) < 0.0025) { // Frequent changes
+/*      if (mod(iTime, 0.005) < 0.0025) { // Frequent changes
         float k = x - squareSize * noise(iTime);
         float e = y - squareSize * noise(vec2(iTime, 9.0));
         float d = exp(length(vec2(k, e)) / 8.0 - 3.0 * noise(vec2(floor(x / 19.0), floor(y / 19.0))));
         return vec2(x + k / d, y + e / d);
-    } */
+    }  */
     return vec2(x, y);
 }
 

@@ -9,6 +9,7 @@ import { fragmentShader as pipesFragment } from './shaders/pipes';
 import { fragmentShader as beatsaberFragment } from './shaders/beatsaber';
 import { fragmentShader as bachFragment } from './shaders/bach';
 import { fragmentShader as magnifiedGridFragment } from './shaders/magnified-grid';
+import { fragmentShader as breakFragment } from './shaders/break';
 export const shaderData = [
   {
     
@@ -109,6 +110,15 @@ export const shaderData = [
     description: 'magnified grid',
     sourceUrl: '',
     code: magnifiedGridFragment,
+    category: 'geometry'
+  },
+  {
+    id: 'break',
+    name: 'Depression Cherry',
+    icon: '🍒',
+    description: '',
+    sourceUrl: '',
+    code: breakFragment,
     category: 'geometry'
   }
 ]; 
