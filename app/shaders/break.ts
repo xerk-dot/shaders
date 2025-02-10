@@ -50,55 +50,6 @@ vec2 minMat(vec2 d1, vec2 d2) {
 
 float rep = .04;
 
-float ss(float mi,float ma,float a)
-{
-    return (sin(a)+1.)*(ma-mi)*0.5+mi;
-}
-#define uTex2D iChannel0
-float pn( in vec3 x ) // iq's noise
-{
-    vec3 p = floor(x);
-    vec3 f = fract(x);
-    f = f*f*(3.0-2.0*f);
-    vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-    vec2 rg = texture(uTex2D, (uv+ 0.5)/256.0, -100.0 ).yx;
-    return -1.0+2.4*mix( rg.x, rg.y, f.z );
-}
-float df(vec3 p)
-{
-    
-    //float pnNoise = pn(p*.26)*1.98 + pn(p*.26)*.62 + pn(p*1.17)*.39; // from aiekick -> https://www.shadertoy.com/view/ltBSzc 
-    
-    // Shane suggestions
-    //float pnNoise = pn(p*.26)*2.6 + pn(p*1.17)*.39;
-    float pnNoise = (pn(p/4.)*0.57 + pn(p/2.)*0.28 + pn(p)*0.15)*3.;
-    
-    return pnNoise;
-}
-float fig(vec3 ro, vec3 rd)
-{
-    float res=0.;
-    float a = 0.;
-    for ( int i = 0;
-         i<60;
-         i++)
-    {
-        vec3 p = ro + rd * a;
-        float fbmp = df(p*8.);
-        res = res + clamp(fbmp * 0.016,-0.5,1.)*p.y*1./abs(p.y*4.);
-        res = mix( res, res+clamp(fbmp * 0.014,-0.5,1.), 0.5 );
-        a += 0.1;
-    }
-    return res;
-}
-mat3 setCamera( in vec3 ro, in vec3 ta, float cr )
-{
-    vec3 cw = normalize(ta-ro);
-    vec3 cp = vec3(sin(cr), cos(cr),0.0);
-    vec3 cu = normalize( cross(cw,cp) );
-    vec3 cv = normalize( cross(cu,cw) );
-    return mat3( cu, cv, cw );
-}
 
 vec2 scene(vec3 p) {
 	vec2 d = vec2(100000., 0.);
@@ -186,8 +137,6 @@ mat3 camera(vec3 ro, vec3 ta, float cr )
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
-
-
 	float t = iTime;
 	vec2 uv = (fragCoord.xy * 2. - iResolution.xy) / min(iResolution.x, iResolution.y);
 	vec2 m = (iMouse.xy * 2. - iResolution.xy) / min(iResolution.x, iResolution.y);
