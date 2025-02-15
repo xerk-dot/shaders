@@ -11,9 +11,7 @@ export const fragmentShader = `#version 300 es
   uniform float iTime;
   out vec4 fragColor;
 
-  const int NUM_STEPS = 8;
   const float PI = 3.141592;
-  const float EPSILON = 1e-3;
 
   // sea
   const int ITER_GEOMETRY = 3;
