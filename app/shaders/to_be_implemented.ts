@@ -86,7 +86,6 @@ export const fragmentShader = `#version 300 es
     // tracing
     vec3 p;
     float tm = 0.0;
-    float tx = 0.0;    
     if (dir.y > 0.0) {
       p = vec3(0.0);
     }
